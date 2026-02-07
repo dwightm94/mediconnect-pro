@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-// API Configuration
+// API Configuration - Match HTML version exactly
 export const API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL || 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
 export const PROVIDER_API_ENDPOINT = process.env.NEXT_PUBLIC_PROVIDER_API_URL || 'https://7725x8ga2j.execute-api.us-east-1.amazonaws.com/prod'
-export const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || 'us-east-1368hbdtts.auth.us-east-1.amazoncognito.com'
-export const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '5baqndp6i2rgi8rjkb3bsgjin8'
+export const COGNITO_DOMAIN = 'https://us-east-1368hbdtts.auth.us-east-1.amazoncognito.com'
+export const CLIENT_ID = '5baqndp6i2rgi8rjkb3bsgjin8'
 
 // Types
 export type UserRole = 'patient' | 'provider' | 'orgadmin' | 'orgowner'
@@ -92,28 +92,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }
 
+  // Match HTML version exactly - uses /login endpoint
   const signInWithGoogle = () => {
     const redirectUri = window.location.origin
-    const authUrl = `https://${COGNITO_DOMAIN}/oauth2/authorize?` +
-      `client_id=${CLIENT_ID}` +
-      `&response_type=token` +
-      `&scope=email+openid+profile` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&identity_provider=Google`
-    
-    console.log('Auth URL:', authUrl)
+    const authUrl = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=token&scope=email+openid+profile&redirect_uri=${encodeURIComponent(redirectUri)}`
+    console.log('Redirecting to:', authUrl)
     window.location.href = authUrl
   }
 
   const signOut = () => {
     sessionStorage.clear()
     setUser(null)
-    
     const redirectUri = window.location.origin
-    const logoutUrl = `https://${COGNITO_DOMAIN}/logout?` +
-      `client_id=${CLIENT_ID}` +
-      `&logout_uri=${encodeURIComponent(redirectUri)}`
-    
+    const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(redirectUri)}`
     window.location.href = logoutUrl
   }
 
