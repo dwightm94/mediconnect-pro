@@ -73,8 +73,8 @@ export default function FindDoctorsPage() {
 
   const loadDoctors = async () => {
     try {
-      const data = await apiCall('/providers').catch(() => null)
-      setDoctors(data?.providers || mockDoctors)
+      const data = await apiCall('/doctors').catch(() => null)
+      setDoctors(data?.doctors || mockDoctors)
     } catch (error) {
       setDoctors(mockDoctors)
     } finally {
