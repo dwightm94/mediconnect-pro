@@ -137,7 +137,7 @@ export default function ExternalRecordsPage() {
     setShowDetailModal(true)
   }
 
-  const uniqueSources = [...new Set(records.map(r => r.sourceOrg))]
+  const uniqueSources = Array.from(new Set(records.map(r => r.sourceOrg)))
   const resourceTypes = ['Observation', 'DiagnosticReport', 'MedicationRequest', 'Procedure', 'Immunization', 'Condition']
 
   if (isLoading) {
