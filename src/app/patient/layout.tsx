@@ -10,9 +10,9 @@ import {
   FileText, 
   Shield, 
   MessageSquare,
-  Settings,
   LogOut
 } from 'lucide-react'
+import { Loading } from '@/components/ui'
 
 const navItems = [
   { href: '/patient', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,8 +28,31 @@ export default function PatientLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, signOut } = useAuth()
+  const { user, isLoading, isAuthenticated, signInWithGoogle, signOut } = useAuth()
   const pathname = usePathname()
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loading text="Loading..." />
+      </div>
+    )
+  }
+
+  // If not authenticated, trigger Google sign-in
+  if (!isAuthenticated) {
+    // Store that they want to go to patient portal
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('selectedRole', 'patient')
+    }
+    signInWithGoogle()
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loading text="Redirecting to sign in..." />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
