@@ -142,17 +142,15 @@ export default function HomePage() {
           Sign in with Google
         </Button>
 
-        {/* Register org link - only for authenticated providers without org */}
-        {isAuthenticated && !user?.orgId && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-sm text-text-3 text-center mb-3">New to MediConnect?</p>
-            <Link href="/register-org">
-              <Button variant="secondary" className="w-full">
-                🏥 Register Your Organization
-              </Button>
-            </Link>
-          </div>
-        )}
+        {/* Register Organization - Always visible for providers */}
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-sm text-text-3 text-center mb-3">New to MediConnect?</p>
+          <Link href="/register-org">
+            <Button variant="secondary" className="w-full">
+              🏥 Register Your Organization
+            </Button>
+          </Link>
+        </div>
 
         {/* Trust badges */}
         <div className="flex items-center justify-center gap-4 mt-6 text-xs text-text-3">
