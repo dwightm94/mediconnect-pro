@@ -1,7 +1,8 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { 
   LayoutDashboard, 
@@ -30,26 +31,23 @@ export default function PatientLayout({
 }) {
   const { user, isLoading, isAuthenticated, signInWithGoogle, signOut } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
 
-  // Show loading while checking auth
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading text="Loading..." />
-      </div>
-    )
-  }
-
-  // If not authenticated, trigger Google sign-in
-  if (!isAuthenticated) {
-    // Store that they want to go to patient portal
-    if (typeof window !== 'undefined') {
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      // Store that they want to go to patient portal
       sessionStorage.setItem('selectedRole', 'patient')
+      // Redirect to home page which will trigger sign-in
+      signInWithGoogle()
     }
-    signInWithGoogle()
+  }, [isLoading, isAuthenticated, signInWithGoogle])
+
+  // Show loading while checking auth or redirecting
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loading text="Redirecting to sign in..." />
+        <Loading text={isLoading ? "Loading..." : "Redirecting to sign in..."} />
       </div>
     )
   }
