@@ -3,10 +3,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 // API Configuration
-export const API_ENDPOINT = 'https://7725x8ga2j.execute-api.us-east-1.amazonaws.com/prod'
-export const COGNITO_DOMAIN = 'us-east-1368hbdtts.auth.us-east-1.amazoncognito.com'
-export const CLIENT_ID = '5baqndp6i2rgi8rjkb3bsgjin8'
-export const REDIRECT_URI = typeof window !== 'undefined' ? window.location.origin : ''
+export const API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL || 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
+export const PROVIDER_API_ENDPOINT = process.env.NEXT_PUBLIC_PROVIDER_API_URL || 'https://7725x8ga2j.execute-api.us-east-1.amazonaws.com/prod'
+export const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || 'us-east-1368hbdtts.auth.us-east-1.amazoncognito.com'
+export const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '5baqndp6i2rgi8rjkb3bsgjin8'
 
 // Types
 export type UserRole = 'patient' | 'provider' | 'orgadmin' | 'orgowner'
@@ -41,13 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check for token in URL (OAuth callback)
     if (typeof window !== 'undefined') {
       const hash = window.location.hash
       if (hash.includes('id_token')) {
         handleOAuthCallback(hash)
       } else {
-        // Check for existing session
         loadStoredSession()
       }
     }
@@ -74,8 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionStorage.setItem('user', JSON.stringify(userData))
         sessionStorage.setItem('idToken', idToken)
         sessionStorage.setItem('accessToken', accessToken || '')
-
-        // Clean URL
         window.history.replaceState(null, '', window.location.pathname)
       }
     } catch (e) {
@@ -97,13 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signInWithGoogle = () => {
+    const redirectUri = window.location.origin
     const authUrl = `https://${COGNITO_DOMAIN}/oauth2/authorize?` +
       `client_id=${CLIENT_ID}` +
       `&response_type=token` +
       `&scope=email+openid+profile` +
-      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&identity_provider=Google`
     
+    console.log('Auth URL:', authUrl)
     window.location.href = authUrl
   }
 
@@ -111,9 +109,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.clear()
     setUser(null)
     
+    const redirectUri = window.location.origin
     const logoutUrl = `https://${COGNITO_DOMAIN}/logout?` +
       `client_id=${CLIENT_ID}` +
-      `&logout_uri=${encodeURIComponent(REDIRECT_URI)}`
+      `&logout_uri=${encodeURIComponent(redirectUri)}`
     
     window.location.href = logoutUrl
   }
@@ -159,11 +158,32 @@ export function useAuth() {
   return context
 }
 
-// API helper
+// API helper for patient endpoints (old API)
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
   const token = sessionStorage.getItem('idToken')
   
   const response = await fetch(`${API_ENDPOINT}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : '',
+      ...options.headers,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }))
+    throw new Error(error.message || error.error || 'Request failed')
+  }
+
+  return response.json()
+}
+
+// API helper for provider/admin endpoints (provider API)
+export async function providerApiCall(endpoint: string, options: RequestInit = {}) {
+  const token = sessionStorage.getItem('idToken')
+  
+  const response = await fetch(`${PROVIDER_API_ENDPOINT}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
