@@ -106,8 +106,9 @@ export default function AppointmentsPage() {
     if (!selectedAppointment) return
 
     try {
-      await apiCall(`/appointments/${selectedAppointment.id}`, {
-        method: 'DELETE'
+      await apiCall(`/appointments/update/${selectedAppointment.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'cancelled' })
       }).catch(() => null)
 
       // Update local state
