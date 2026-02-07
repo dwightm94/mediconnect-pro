@@ -244,7 +244,7 @@ export default function PatientDashboard() {
             ) : (
               <div className="divide-y divide-gray-100">
                 {records.slice(0, 4).map((record) => {
-                  const icons: Record<string, string> = {
+                  const icons: { [key: string]: string } = {
                     'Lab Result': '🔬',
                     'Imaging': '📷',
                     'Visit Note': '📝',
