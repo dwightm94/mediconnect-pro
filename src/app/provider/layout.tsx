@@ -27,7 +27,7 @@ export default function ProviderLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, logout } = useAuth()
+  const { user, signOut } = useAuth()
   const pathname = usePathname()
 
   return (
@@ -77,7 +77,7 @@ export default function ProviderLayout({
                   {user?.email?.charAt(0).toUpperCase() || 'D'}
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={signOut}
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   title="Sign out"
                 >
