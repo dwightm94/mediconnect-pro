@@ -45,7 +45,7 @@ export default function PatientDashboard() {
       // Try to load real data, fall back to mock data
       const [apptData, recordData] = await Promise.all([
         apiCall('/appointments').catch(() => null),
-        apiCall('/records').catch(() => null)
+        apiCall('/medical-records').catch(() => null)
       ])
 
       // Mock data for demo
@@ -144,7 +144,7 @@ export default function PatientDashboard() {
                 <span className="text-sm">Video Visit</span>
               </Button>
             </Link>
-            <Link href="/patient/records">
+            <Link href="/patient/medical-records">
               <Button variant="secondary" className="w-full flex-col h-24 gap-2">
                 <FileText className="w-6 h-6 text-[#0A6E6E]" />
                 <span className="text-sm">My Records</span>
@@ -230,7 +230,7 @@ export default function PatientDashboard() {
         <Card>
           <CardHeader className="flex items-center justify-between">
             <h3 className="font-bold text-lg">Recent Records</h3>
-            <Link href="/patient/records">
+            <Link href="/patient/medical-records">
               <Button variant="ghost" size="sm">View All</Button>
             </Link>
           </CardHeader>

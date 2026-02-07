@@ -167,7 +167,7 @@ export default function ProviderDashboard() {
                 <span className="text-sm">Data Requests</span>
               </Button>
             </Link>
-            <Link href="/provider/records">
+            <Link href="/provider/medical-records">
               <Button variant="secondary" className="w-full flex-col h-24 gap-2">
                 <FileText className="w-6 h-6 text-[#0A6E6E]" />
                 <span className="text-sm">External Records</span>

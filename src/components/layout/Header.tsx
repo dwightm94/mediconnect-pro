@@ -15,14 +15,14 @@ const patientNav: NavItem[] = [
   { label: 'Dashboard', href: '/patient' },
   { label: 'Find Doctors', href: '/patient/doctors' },
   { label: 'Appointments', href: '/patient/appointments' },
-  { label: 'Records', href: '/patient/records' },
+  { label: 'Records', href: '/patient/medical-records' },
   { label: 'Consents', href: '/patient/consents' },
 ]
 
 const providerNav: NavItem[] = [
   { label: 'Dashboard', href: '/provider' },
   { label: 'Patients', href: '/provider/patients' },
-  { label: 'Records', href: '/provider/records' },
+  { label: 'Records', href: '/provider/medical-records' },
   { label: 'Sharing', href: '/provider/sharing' },
   { label: 'Appointments', href: '/provider/appointments' },
 ]

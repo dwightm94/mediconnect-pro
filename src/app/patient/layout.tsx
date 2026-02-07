@@ -19,7 +19,7 @@ const navItems = [
   { href: '/patient', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/patient/doctors', label: 'Find Doctors', icon: Users },
   { href: '/patient/appointments', label: 'Appointments', icon: Calendar },
-  { href: '/patient/records', label: 'Records', icon: FileText },
+  { href: '/patient/medical-records', label: 'Records', icon: FileText },
   { href: '/patient/consents', label: 'Consents', icon: Shield },
   { href: '/patient/messages', label: 'Messages', icon: MessageSquare },
 ]

@@ -18,7 +18,7 @@ const navItems = [
   { href: '/provider/patients', label: 'My Patients', icon: Users },
   { href: '/provider/appointments', label: 'Appointments', icon: Calendar },
   { href: '/provider/sharing', label: 'Data Requests', icon: Share2 },
-  { href: '/provider/records', label: 'External Records', icon: FileText },
+  { href: '/provider/medical-records', label: 'External Records', icon: FileText },
   { href: '/provider/messages', label: 'Messages', icon: MessageSquare },
 ]
 
