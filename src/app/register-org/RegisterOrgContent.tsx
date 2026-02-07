@@ -2,240 +2,188 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth, apiCall } from '@/lib/auth-context'
-import { Button, Input, Card, CardBody, Alert } from '@/components/ui'
+import { useAuth } from '@/lib/auth-context'
+import { Button, Card, CardBody } from '@/components/ui'
 
-const orgTypeLabels: Record<string, string> = {
-  hospital: '🏥 Hospital',
-  lab: '🔬 Laboratory',
-  urgent_care: '🚑 Urgent Care',
-  doctor_office: '👨‍⚕️ Doctor Office',
-  nursing_home: '🏠 Nursing Home',
-  pharmacy: '💊 Pharmacy',
+interface OrgFormData {
+  orgName: string
+  orgType: string
+  npi: string
+  address: string
+  city: string
+  state: string
+  zip: string
+  adminName: string
+  adminEmail: string
+  adminPhone: string
 }
 
-const orgTypes = [
-  { value: 'hospital', icon: '🏥', label: 'Hospital' },
-  { value: 'lab', icon: '🔬', label: 'Laboratory' },
-  { value: 'urgent_care', icon: '🚑', label: 'Urgent Care' },
-  { value: 'doctor_office', icon: '👨‍⚕️', label: 'Doctor Office' },
-  { value: 'nursing_home', icon: '🏠', label: 'Nursing Home' },
-  { value: 'pharmacy', icon: '💊', label: 'Pharmacy' },
-]
-
 export default function RegisterOrgContent() {
-  const { user, isAuthenticated } = useAuth()
   const router = useRouter()
-  
+  const { isAuthenticated, signInWithGoogle } = useAuth()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  
-  const [formData, setFormData] = useState({
-    type: '',
-    name: '',
+  const [formData, setFormData] = useState<OrgFormData>({
+    orgName: '',
+    orgType: '',
     npi: '',
     address: '',
     city: '',
     state: '',
     zip: '',
-    phone: '',
+    adminName: '',
+    adminEmail: '',
+    adminPhone: '',
   })
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-[#F5F7FA]">
-        <Card className="max-w-md w-full">
-          <CardBody className="p-8 text-center">
-            <p className="text-gray-500">Please sign in first</p>
-            <Button onClick={() => router.push('/')} className="mt-4">Go to Home</Button>
-          </CardBody>
-        </Card>
-      </div>
-    )
-  }
+  const orgTypes = [
+    { value: 'hospital', label: '🏥 Hospital', desc: 'Full-service medical facility' },
+    { value: 'lab', label: '🔬 Laboratory', desc: 'Diagnostic and testing services' },
+    { value: 'urgent_care', label: '🚑 Urgent Care', desc: 'Walk-in medical care' },
+    { value: 'doctor_office', label: '👨‍⚕️ Doctor Office', desc: 'Private practice or clinic' },
+    { value: 'nursing_home', label: '🏠 Nursing Home', desc: 'Long-term care facility' },
+    { value: 'pharmacy', label: '💊 Pharmacy', desc: 'Medication dispensing' },
+  ]
 
-  const handleTypeSelect = (type: string) => {
-    setFormData({ ...formData, type })
-    setStep(2)
+  const updateField = (field: keyof OrgFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
-    setError('')
-
     try {
-      await apiCall('/organizations', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...formData,
-          adminEmail: user?.email,
-        }),
-      })
-      router.push('/org-admin?registered=true')
-    } catch (err: any) {
-      setError(err.message || 'Registration failed')
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      router.push('/org-admin')
+    } catch (error) {
+      console.error('Registration failed:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const canProceedStep1 = formData.orgName && formData.orgType
+  const canProceedStep2 = formData.npi && formData.address && formData.city && formData.state && formData.zip
+  const canSubmit = formData.adminName && formData.adminEmail
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F5F7FA]">
-      <Card className="max-w-xl w-full">
-        <CardBody className="p-8">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#0A6E6E] to-[#0EEACA] flex items-center justify-center text-white font-bold text-xl">
+    <div className="min-h-screen bg-gradient-to-br from-[#054848] to-[#0A6E6E] flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-xl">
               M
             </div>
-            <span className="font-bold text-2xl text-[#054848]">
-              MediConnect <span className="text-[#0EEACA]">Pro</span>
+            <span className="text-2xl font-bold text-white">
+              MediConnect<span className="text-[#0EEACA]">Pro</span>
             </span>
           </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Register Your Organization</h1>
+          <p className="text-white/80">Join the healthcare network in minutes</p>
+        </div>
 
-          <h1 className="text-2xl font-bold text-center mb-2">Register Your Organization</h1>
-          <p className="text-gray-500 text-center mb-6">Join the health information exchange</p>
-
-          <div className="flex gap-2 mb-8">
-            {[1, 2, 3].map((s) => (
-              <div
-                key={s}
-                className={`flex-1 h-1 rounded-full ${
-                  s < step ? 'bg-green-500' : s === step ? 'bg-[#0A6E6E]' : 'bg-gray-200'
-                }`}
-              />
-            ))}
-          </div>
-
-          {error && <Alert variant="error" className="mb-6">{error}</Alert>}
-
-          {step === 1 && (
-            <div>
-              <h2 className="font-semibold mb-4">What type of organization?</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {orgTypes.map((type) => (
-                  <button
-                    key={type.value}
-                    onClick={() => handleTypeSelect(type.value)}
-                    className={`p-4 rounded-xl border-2 text-center transition-all hover:border-[#0A6E6E] ${
-                      formData.type === type.value ? 'border-[#0A6E6E] bg-[rgba(14,234,202,0.10)]' : 'border-gray-200'
-                    }`}
-                  >
-                    <span className="text-3xl block mb-2">{type.icon}</span>
-                    <span className="text-sm font-medium">{type.label}</span>
-                  </button>
-                ))}
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {[1, 2, 3].map((s) => (
+            <div key={s} className="flex items-center">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+                step >= s ? 'bg-[#0EEACA] text-[#054848]' : 'bg-white/20 text-white/60'
+              }`}>
+                {step > s ? '✓' : s}
               </div>
-              <Button variant="ghost" className="w-full mt-6" onClick={() => router.push('/')}>
-                Cancel
-              </Button>
+              {s < 3 && (
+                <div className={`w-12 h-1 mx-1 rounded ${step > s ? 'bg-[#0EEACA]' : 'bg-white/20'}`} />
+              )}
             </div>
-          )}
+          ))}
+        </div>
 
-          {step === 2 && (
-            <div className="space-y-4">
-              <h2 className="font-semibold mb-4">Organization Details</h2>
-              
-              <Input
-                label="Organization Name *"
-                placeholder="e.g., City General Hospital"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-              
-              <Input
-                label="NPI Number (10 digits) *"
-                placeholder="1234567890"
-                maxLength={10}
-                value={formData.npi}
-                onChange={(e) => setFormData({ ...formData, npi: e.target.value.replace(/\D/g, '') })}
-                required
-              />
-              
-              <Input
-                label="Address"
-                placeholder="123 Medical Center Dr"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              />
-              
-              <div className="grid grid-cols-3 gap-3">
-                <Input
-                  label="City"
-                  placeholder="New York"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                />
-                <Input
-                  label="State"
-                  placeholder="NY"
-                  maxLength={2}
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase() })}
-                />
-                <Input
-                  label="ZIP"
-                  placeholder="10001"
-                  maxLength={5}
-                  value={formData.zip}
-                  onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                />
-              </div>
+        {/* Form Card */}
+        <Card className="shadow-2xl">
+          <CardBody className="p-8">
+            {/* Step 1: Organization Type */}
+            {step === 1 && (
+              <div className="space-y-6 animate-fade-in">
+                <div>
+                  <h2 className="text-xl font-bold mb-1">Organization Details</h2>
+                  <p className="text-gray-500">Tell us about your healthcare organization</p>
+                </div>
 
-              <div className="flex gap-3 pt-4">
-                <Button variant="ghost" className="flex-1" onClick={() => setStep(1)}>Back</Button>
-                <Button
-                  className="flex-1"
-                  disabled={!formData.name || formData.npi.length !== 10}
-                  onClick={() => setStep(3)}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Organization Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.orgName}
+                    onChange={(e) => updateField('orgName', e.target.value)}
+                    placeholder="e.g., City General Hospital"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Organization Type *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {orgTypes.map((type) => (
+                      <button
+                        key={type.value}
+                        onClick={() => updateField('orgType', type.value)}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                          formData.orgType === type.value
+                            ? 'border-[#0A6E6E] bg-[rgba(14,234,202,0.10)]'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="text-2xl mb-1">{type.label.split(' ')[0]}</div>
+                        <div className="font-medium text-sm">{type.label.split(' ').slice(1).join(' ')}</div>
+                        <div className="text-xs text-gray-500">{type.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full" 
+                  disabled={!canProceedStep1}
+                  onClick={() => setStep(2)}
                 >
-                  Continue
+                  Continue →
                 </Button>
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 3 && (
-            <div>
-              <div className="text-center mb-6">
-                <span className="text-5xl">✅</span>
-                <h2 className="font-semibold text-xl mt-4">Ready to Register!</h2>
-              </div>
+            {/* Step 2: Organization Info */}
+            {step === 2 && (
+              <div className="space-y-6 animate-fade-in">
+                <div>
+                  <h2 className="text-xl font-bold mb-1">Organization Information</h2>
+                  <p className="text-gray-500">Provide your organization's details</p>
+                </div>
 
-              <div className="bg-gray-100 rounded-xl p-4 mb-6 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Type:</span>
-                  <strong>{orgTypeLabels[formData.type]}</strong>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    NPI Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.npi}
+                    onChange={(e) => updateField('npi', e.target.value)}
+                    placeholder="10-digit NPI"
+                    maxLength={10}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">National Provider Identifier</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Name:</span>
-                  <strong>{formData.name}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">NPI:</span>
-                  <strong>{formData.npi}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Admin:</span>
-                  <strong>{user?.email}</strong>
-                </div>
-              </div>
 
-              <Alert variant="success" className="mb-6">
-                <strong>🎉 You will become the Organization Owner</strong>
-              </Alert>
-
-              <div className="flex gap-3">
-                <Button variant="ghost" className="flex-1" onClick={() => setStep(2)}>Back</Button>
-                <Button className="flex-1" onClick={handleSubmit} isLoading={isSubmitting}>
-                  🚀 Complete Registration
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardBody>
-      </Card>
-    </div>
-  )
-}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Street Address *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => updateField('address', e.target.value)}
