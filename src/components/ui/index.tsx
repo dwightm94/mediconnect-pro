@@ -237,9 +237,10 @@ export function EmptyState({ icon = '📋', title, description, action }: EmptyS
 interface AlertProps {
   variant?: 'info' | 'success' | 'warning' | 'error'
   children: ReactNode
+  className?: string
 }
 
-export function Alert({ variant = 'info', children }: AlertProps) {
+export function Alert({ variant = 'info', children, className }: AlertProps) {
   const variants = {
     info: 'bg-blue-50 border-blue-200 text-blue-800',
     success: 'bg-green-50 border-green-200 text-green-800',
@@ -248,7 +249,7 @@ export function Alert({ variant = 'info', children }: AlertProps) {
   }
 
   return (
-    <div className={cn('p-4 rounded-lg border', variants[variant])}>
+    <div className={cn('p-4 rounded-lg border', variants[variant], className)}>
       {children}
     </div>
   )
