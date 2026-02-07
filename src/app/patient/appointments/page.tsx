@@ -20,7 +20,7 @@ interface Appointment {
 }
 
 export default function AppointmentsPage() {
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)

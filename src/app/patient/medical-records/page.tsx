@@ -23,7 +23,7 @@ interface MedicalRecord {
 }
 
 export default function RecordsPage() {
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [records, setRecords] = useState<MedicalRecord[]>([])
   const [filteredRecords, setFilteredRecords] = useState<MedicalRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
