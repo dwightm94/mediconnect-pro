@@ -25,7 +25,7 @@ export default function OrgAdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, logout } = useAuth()
+  const { user, signOut } = useAuth()
   const pathname = usePathname()
 
   return (
