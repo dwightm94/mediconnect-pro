@@ -48,7 +48,7 @@ export default function AppointmentsPage() {
 
   const loadAppointments = async () => {
     try {
-      const data = await apiCall('/appointments').catch(() => null)
+      const data = await apiCall(`/appointments?patientId=${user?.sub}`).catch(() => null)
       setAppointments(data?.appointments || mockAppointments)
     } catch (error) {
       setAppointments(mockAppointments)

@@ -67,7 +67,7 @@ export default function RecordsPage() {
 
   const loadRecords = async () => {
     try {
-      const data = await apiCall('/medical-records').catch(() => null)
+      const data = await apiCall(`/medical-records?patientId=${user?.sub}`).catch(() => null)
       setRecords(data?.records || mockRecords)
     } catch (error) {
       setRecords(mockRecords)
