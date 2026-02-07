@@ -187,3 +187,124 @@ export default function RegisterOrgContent() {
                     type="text"
                     value={formData.address}
                     onChange={(e) => updateField('address', e.target.value)}
+                    placeholder="123 Medical Center Dr"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                    <input
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => updateField('city', e.target.value)}
+                      placeholder="New York"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">State *</label>
+                    <input
+                      type="text"
+                      value={formData.state}
+                      onChange={(e) => updateField('state', e.target.value)}
+                      placeholder="NY"
+                      maxLength={2}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP *</label>
+                    <input
+                      type="text"
+                      value={formData.zip}
+                      onChange={(e) => updateField('zip', e.target.value)}
+                      placeholder="10001"
+                      maxLength={5}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button variant="ghost" className="flex-1" onClick={() => setStep(1)}>Back</Button>
+                  <Button className="flex-1" disabled={!canProceedStep2} onClick={() => setStep(3)}>
+                    Continue →
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Admin Account */}
+            {step === 3 && (
+              <div className="space-y-6 animate-fade-in">
+                <div>
+                  <h2 className="text-xl font-bold mb-1">Administrator Account</h2>
+                  <p className="text-gray-500">Set up the primary admin for your organization</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Admin Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.adminName}
+                    onChange={(e) => updateField('adminName', e.target.value)}
+                    placeholder="John Smith"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Admin Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.adminEmail}
+                    onChange={(e) => updateField('adminEmail', e.target.value)}
+                    placeholder="admin@yourorg.com"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.adminPhone}
+                    onChange={(e) => updateField('adminPhone', e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <p className="text-sm text-blue-800">
+                    📧 A verification email will be sent to confirm your organization registration.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button variant="ghost" className="flex-1" onClick={() => setStep(2)}>Back</Button>
+                  <Button className="flex-1" onClick={handleSubmit} disabled={!canSubmit || isSubmitting}>
+                    {isSubmitting ? '⏳ Submitting...' : '🚀 Complete Registration'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Footer */}
+        <p className="text-center text-white/60 text-sm mt-6">
+          Already registered? <a href="/org-admin" className="text-[#0EEACA] hover:underline">Sign in here</a>
+        </p>
+      </div>
+    </div>
+  )
+}
