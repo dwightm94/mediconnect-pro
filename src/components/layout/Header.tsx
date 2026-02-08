@@ -13,10 +13,10 @@ interface NavItem {
 
 const patientNav: NavItem[] = [
   { label: 'Dashboard', href: '/patient' },
-  { label: 'Find Doctors', href: '/patient/doctors' },
+  { label: 'Doctors', href: '/patient/doctors' },
   { label: 'Appointments', href: '/patient/appointments' },
   { label: 'Records', href: '/patient/medical-records' },
-  { label: 'Consents', href: '/patient/consents' },
+  { label: 'Messages', href: '/patient/messages' },
   { label: 'Settings', href: '/patient/settings' },
 ]
 
