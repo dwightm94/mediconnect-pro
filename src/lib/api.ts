@@ -271,3 +271,30 @@ export async function getConsents(): Promise<any[]> {
   const data = await apiCall('/consents')
   return data?.consents || []
 }
+
+/** Check if patient profile exists */
+export async function checkPatient(patientId: string): Promise<{ exists: boolean; patient?: any }> {
+  try {
+    const data = await apiCall(`/patients/${patientId}`)
+    return { exists: true, patient: data?.patient }
+  } catch {
+    return { exists: false }
+  }
+}
+
+/** Register new patient profile */
+export async function registerPatient(params: {
+  patientId: string
+  email: string
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+  gender: string
+  phone?: string
+}): Promise<{ success: boolean }> {
+  const data = await apiCall('/patients', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  })
+  return { success: data?.success || false }
+}

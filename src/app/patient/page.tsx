@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getAppointments, getMedicalRecords, type Appointment, type MedicalRecord } from '@/lib/api'
+import { getAppointments, getMedicalRecords, checkPatient, type Appointment, type MedicalRecord } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, StatCard, Chip, Loading, EmptyState } from '@/components/ui'
 import { Calendar, FileText, Users, Video, MessageSquare, Shield, Clock, MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 // Types imported from @/lib/api
 
 export default function PatientDashboard() {
   const { user, isAuthenticated, signInWithGoogle } = useAuth()
+  const router = useRouter()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [records, setRecords] = useState<MedicalRecord[]>([])
   const [stats, setStats] = useState({ appointments: 0, records: 0, prescriptions: 0, consents: 0 })
@@ -26,6 +28,12 @@ export default function PatientDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      // Check if patient profile exists, redirect to onboarding if not
+      const profileCheck = await checkPatient(user?.sub || '').catch(() => ({ exists: false }))
+      if (!profileCheck.exists) {
+        router.push('/patient/onboarding')
+        return
+      }
       const [apptResult, recordResult] = await Promise.all([
         getAppointments(user?.sub || '').catch(() => null),
         getMedicalRecords(user?.sub || '').catch(() => null)
