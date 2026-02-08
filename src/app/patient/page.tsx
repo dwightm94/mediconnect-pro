@@ -61,8 +61,31 @@ export default function PatientDashboard() {
         { id: '3', type: 'Visit Note', title: 'Annual Physical', provider: 'Dr. Sarah Chen', date: '2026-01-15', status: 'final' },
       ]
 
-      setAppointments(apptData?.appointments || mockAppointments)
-      setRecords(recordData?.records || mockRecords)
+      setAppointments((apptData?.appointments || []).map((a: any) => ({
+        id: a.appointmentId || a.id,
+        providerName: a.doctorName || a.providerName || 'Unknown Provider',
+        specialty: a.doctorSpecialty || a.specialty || '',
+        dateTime: a.appointmentDate ? a.appointmentDate + 'T' + (a.appointmentTime || '00:00:00') : a.dateTime,
+        type: a.consultationType === 'video' ? 'video' : 'in-person',
+        status: a.status || 'pending',
+        location: a.location || '',
+      })) .length ? (apptData?.appointments || []).map((a: any) => ({
+        id: a.appointmentId || a.id,
+        providerName: a.doctorName || a.providerName || 'Unknown Provider',
+        specialty: a.doctorSpecialty || a.specialty || '',
+        dateTime: a.appointmentDate ? a.appointmentDate + 'T' + (a.appointmentTime || '00:00:00') : a.dateTime,
+        type: a.consultationType === 'video' ? 'video' : 'in-person',
+        status: a.status || 'pending',
+        location: a.location || '',
+      })) : mockAppointments)
+      setRecords((recordData?.records || []).map((r: any) => ({
+        id: r.record_id || r.id,
+        type: r.record_type || r.type || 'Document',
+        title: r.title || r.record_type || 'Untitled',
+        provider: r.provider_name || r.provider || 'Unknown',
+        date: r.record_date || r.date || '',
+        status: r.status || 'final',
+      })) || mockRecords)
       setStats({
         appointments: apptData?.appointments?.length || 3,
         records: recordData?.records?.length || 12,
