@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
-import { Menu, X, LogOut } from 'lucide-react'
+import { Menu, X, LogOut, Settings } from 'lucide-react'
 import { useState } from 'react'
 
 interface NavItem {
@@ -17,7 +17,6 @@ const patientNav: NavItem[] = [
   { label: 'Appointments', href: '/patient/appointments' },
   { label: 'Records', href: '/patient/medical-records' },
   { label: 'Consents', href: '/patient/consents' },
-  { label: 'Settings', href: '/patient/settings' },
 ]
 
 const providerNav: NavItem[] = [
@@ -107,6 +106,13 @@ export function Header() {
                 <span className="text-sm text-text-2 hidden lg:inline">
                   {user.email}
                 </span>
+                <Link
+                  href="/patient/settings"
+                  className="p-2 rounded-lg hover:bg-surface-2 text-text-3 hover:text-text-1 transition-colors"
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5" />
+                </Link>
                 <button
                   onClick={signOut}
                   className="p-2 rounded-lg hover:bg-surface-2 text-text-3 hover:text-text-1 transition-colors"
