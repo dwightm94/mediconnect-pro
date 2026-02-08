@@ -17,6 +17,7 @@ export default function PatientDashboard() {
   const [records, setRecords] = useState<MedicalRecord[]>([])
   const [stats, setStats] = useState({ appointments: 0, records: 0, prescriptions: 0, consents: 0 })
   const [isLoading, setIsLoading] = useState(true)
+  const [patientName, setPatientName] = useState('')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -33,6 +34,9 @@ export default function PatientDashboard() {
       if (!profileCheck.exists) {
         router.push('/patient/onboarding')
         return
+      }
+      if (profileCheck.patient) {
+        setPatientName(`${profileCheck.patient.first_name} ${profileCheck.patient.last_name}`.trim())
       }
       const [apptResult, recordResult] = await Promise.all([
         getAppointments(user?.sub || '').catch(() => null),
@@ -99,7 +103,7 @@ export default function PatientDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold mb-1">
-              Welcome back, {user?.email?.split('@')[0]}! 👋
+              Welcome back, {patientName || user?.email?.split('@')[0]}! 👋
             </h1>
             <p className="opacity-90">Here's your health dashboard for today</p>
           </div>
