@@ -7,19 +7,7 @@ import { Button, Card, CardHeader, CardBody, Chip, Loading, EmptyState, Modal } 
 import { Calendar, Clock, MapPin, Video, Phone, X, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 
-interface Appointment {
-  id: string
-  providerName: string
-  providerSpecialty: string
-  organization: string
-  dateTime: string
-  type: 'in-person' | 'video'
-  status: 'confirmed' | 'pending' | 'completed' | 'cancelled'
-  location?: string
-  reason?: string
-  notes?: string
-}
-
+// Appointment type imported from @/lib/api
 export default function AppointmentsPage() {
   const { user, isAuthenticated } = useAuth()
   const [appointments, setAppointments] = useState<Appointment[]>([])
