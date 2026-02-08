@@ -11,16 +11,17 @@ import {
   FileText, 
   MessageSquare,
   Settings,
+  Activity,
   LogOut
 } from 'lucide-react'
 import { Loading } from '@/components/ui'
 
 const navItems = [
   { href: '/patient', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/patient/doctors', label: 'Doctors', icon: Users },
-  { href: '/patient/appointments', label: 'Appointments', icon: Calendar },
+  { href: '/patient/health-data', label: 'My Health', icon: Activity },
+  { href: '/patient/health-sources', label: 'Sources', icon: Users },
+  { href: '/patient/appointments', label: 'Appts', icon: Calendar },
   { href: '/patient/medical-records', label: 'Records', icon: FileText },
-  { href: '/patient/messages', label: 'Messages', icon: MessageSquare },
   { href: '/patient/settings', label: 'Settings', icon: Settings },
 ]
 
