@@ -75,7 +75,7 @@ export default function FindDoctorsPage() {
       filtered = filtered.filter(d => 
         d.name.toLowerCase().includes(query) ||
         d.specialty.toLowerCase().includes(query) ||
-        d.organization.toLowerCase().includes(query)
+        d.organization?.toLowerCase().includes(query)
       )
     }
     

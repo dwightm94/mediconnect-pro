@@ -331,11 +331,11 @@ export default function RecordsPage() {
             )}
 
             {/* Attachments */}
-            {selectedRecord.attachments && selectedRecord.attachments.length > 0 && (
+            {selectedRecord.attachments && selectedRecord.attachments?.length > 0 && (
               <div>
                 <div className="text-sm text-gray-500 mb-2">Attachments</div>
                 <div className="space-y-2">
-                  {selectedRecord.attachments.map((attachment, index) => (
+                  {selectedRecord.attachments?.map((attachment, index) => (
                     <div
                       key={index}
                       className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer"
