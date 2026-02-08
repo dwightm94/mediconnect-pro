@@ -198,7 +198,7 @@ export async function bookAppointment(params: {
       doctorId: params.doctorId,
       appointmentDate: params.date,
       appointmentTime: params.time,
-      consultationType: params.type === 'video' ? 'telehealth' : params.type,
+      consultationType: params.type === 'video' ? 'virtual' : params.type,
       reason: params.reason,
       patientEmail: params.patientEmail,
       patientName: params.patientName,
