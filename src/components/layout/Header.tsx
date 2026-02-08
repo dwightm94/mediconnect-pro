@@ -100,19 +100,20 @@ export function Header() {
               {roleBadge.label}
             </span>
 
+            {/* Settings */}
+            <Link
+              href="/patient/settings"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5 text-gray-600" />
+            </Link>
             {/* User Menu */}
             {user && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-text-2 hidden lg:inline">
                   {user.email}
                 </span>
-                <Link
-                  href="/patient/settings"
-                  className="p-2 rounded-lg hover:bg-surface-2 text-text-3 hover:text-text-1 transition-colors"
-                  title="Settings"
-                >
-                  <Settings className="w-5 h-5" />
-                </Link>
                 <button
                   onClick={signOut}
                   className="p-2 rounded-lg hover:bg-surface-2 text-text-3 hover:text-text-1 transition-colors"
