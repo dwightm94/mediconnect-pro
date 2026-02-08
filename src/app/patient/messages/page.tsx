@@ -107,7 +107,7 @@ export default function MessagesPage() {
 
   const loadConversations = async () => {
     try {
-      const data = await apiCall(`/messages?patientId=${user?.sub}`).catch(() => null)
+      const data = await apiCall(`/messages/${user?.sub}`).catch(() => null)
       setConversations(data?.conversations || mockConversations)
     } catch (error) {
       setConversations(mockConversations)

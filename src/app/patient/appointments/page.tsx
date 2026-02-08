@@ -48,7 +48,7 @@ export default function AppointmentsPage() {
 
   const loadAppointments = async () => {
     try {
-      const data = await apiCall(`/appointments?patientId=${user?.sub}`).catch(() => null)
+      const data = await apiCall(`/appointments/${user?.sub}`).catch(() => null)
       setAppointments(data?.appointments || mockAppointments)
     } catch (error) {
       setAppointments(mockAppointments)
@@ -108,7 +108,7 @@ export default function AppointmentsPage() {
     try {
       await apiCall(`/appointments/update/${selectedAppointment.id}`, {
         method: 'PUT',
-        body: JSON.stringify({ status: 'cancelled' })
+        body: JSON.stringify({ action: 'cancel' })
       }).catch(() => null)
 
       // Update local state

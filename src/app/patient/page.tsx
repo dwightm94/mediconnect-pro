@@ -44,8 +44,8 @@ export default function PatientDashboard() {
     try {
       // Try to load real data, fall back to mock data
       const [apptData, recordData] = await Promise.all([
-        apiCall(`/appointments?patientId=${user?.sub}`).catch(() => null),
-        apiCall(`/medical-records?patientId=${user?.sub}`).catch(() => null)
+        apiCall(`/appointments/${user?.sub}`).catch(() => null),
+        apiCall(`/medical-records/${user?.sub}`).catch(() => null)
       ])
 
       // Mock data for demo
