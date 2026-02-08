@@ -133,10 +133,13 @@ export default function FindDoctorsPage() {
       await apiCall('/appointments', {
         method: 'POST',
         body: JSON.stringify({
-          providerId: selectedDoctor.id,
-          date: selectedDate,
-          time: selectedTime,
-          type: appointmentType
+          patientId: user?.sub,
+          doctorId: selectedDoctor.id,
+          appointmentDate: selectedDate,
+          appointmentTime: selectedTime,
+          consultationType: appointmentType,
+          patientEmail: user?.email,
+          patientName: user?.email?.split('@')[0]
         })
       }).catch(() => null)
 
