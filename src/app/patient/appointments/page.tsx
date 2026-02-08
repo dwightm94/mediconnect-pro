@@ -22,9 +22,9 @@ export default function AppointmentsPage() {
     { id: '1', providerName: 'Dr. Sarah Chen', specialty: 'Primary Care', dateTime: '2026-02-10T09:00:00', type: 'in-person', status: 'confirmed', location: '123 Medical Center Dr, New York, NY', reason: 'Annual Physical', meetingLink: '', paymentStatus: '', paymentAmount: '' },
     { id: '2', providerName: 'Dr. Michael Roberts', specialty: 'Cardiology', dateTime: '2026-02-12T14:30:00', type: 'video', status: 'confirmed', location: '', reason: 'Follow-up Consultation', meetingLink: '', paymentStatus: '', paymentAmount: '' },
     { id: '3', providerName: 'Dr. Emily Watson', specialty: 'Dermatology', dateTime: '2026-02-15T11:00:00', type: 'in-person', status: 'pending', location: '456 Downtown Clinic, Brooklyn, NY', reason: 'Skin Check', meetingLink: '', paymentStatus: '', paymentAmount: '' },
-    { id: '4', providerName: 'Dr. James Wilson', specialty: 'Orthopedics', dateTime: '2026-01-20T10:00:00', type: 'in-person', status: 'completed', location: '789 Sports Med Blvd, Manhattan, NY', reason: 'Knee Pain Evaluation' },
-    { id: '5', providerName: 'Dr. Lisa Park', specialty: 'Pediatrics',s Wellness Center', dateTime: '2026-01-15T15:00:00', type: 'video', status: 'completed', reason: 'Sick Visit - Cold Symptoms' },
-    { id: '6', providerName: 'Dr. David Kim', specialty: 'Neurology', dateTime: '2026-01-10T09:30:00', type: 'in-person', status: 'cancelled', location: '321 Neuro Center, New York, NY', reason: 'Headache Consultation' },
+    { id: '4', providerName: 'Dr. James Wilson', specialty: 'Orthopedics', dateTime: '2026-01-20T10:00:00', type: 'in-person', status: 'completed', location: '789 Sports Med Blvd, Manhattan, NY', reason: 'Knee Pain Evaluation', meetingLink: '', paymentStatus: '', paymentAmount: '' },
+    { id: '5', providerName: 'Dr. Lisa Park', specialty: 'Pediatrics', dateTime: '2026-01-15T15:00:00', type: 'video', status: 'completed', location: '', reason: 'Sick Visit - Cold Symptoms', meetingLink: '', paymentStatus: '', paymentAmount: '' },
+    { id: '6', providerName: 'Dr. David Kim', specialty: 'Neurology', dateTime: '2026-01-10T09:30:00', type: 'in-person', status: 'cancelled', location: '321 Neuro Center, New York, NY', reason: 'Headache Consultation', meetingLink: '', paymentStatus: '', paymentAmount: '' },
   ]
 
   useEffect(() => {
@@ -231,7 +231,7 @@ export default function AppointmentsPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <h3 className="font-bold text-lg">{appointment.providerName}</h3>
-                          <p className="text-[#0A6E6E]">{appointment.providerSpecialty}</p>
+                          <p className="text-[#0A6E6E]">{appointment.specialty}</p>
                           <p className="text-sm text-gray-500">{appointment.organization}</p>
                         </div>
                         <Chip variant={getStatusColor(appointment.status)}>
@@ -313,7 +313,7 @@ export default function AppointmentsPage() {
               </div>
               <div>
                 <h3 className="font-bold text-lg">{selectedAppointment.providerName}</h3>
-                <p className="text-[#0A6E6E]">{selectedAppointment.providerSpecialty}</p>
+                <p className="text-[#0A6E6E]">{selectedAppointment.specialty}</p>
                 <p className="text-sm text-gray-500">{selectedAppointment.organization}</p>
               </div>
             </div>
