@@ -141,7 +141,7 @@ export default function SettingsPage() {
       {activeTab === 'profile' && (
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Personal Information" />
+            <CardHeader>Personal Information</CardHeader>
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -185,7 +185,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Emergency Contact" />
+            <CardHeader>Emergency Contact</CardHeader>
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -201,7 +201,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Preferences" />
+            <CardHeader>Preferences</CardHeader>
             <CardBody>
               <div>
                 <label className={labelClass}>Preferred Language</label>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
       {activeTab === 'healthcare' && (
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Insurance Information" />
+            <CardHeader>Insurance Information</CardHeader>
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -240,7 +240,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Medical Preferences" />
+            <CardHeader>Medical Preferences</CardHeader>
             <CardBody className="space-y-4">
               <div>
                 <label className={labelClass}>Primary Care Provider</label>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
       {activeTab === 'privacy' && (
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Account Security" />
+            <CardHeader>Account Security</CardHeader>
             <CardBody className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                 <div>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Your Data" />
+            <CardHeader>Your Data</CardHeader>
             <CardBody className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                 <div>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader title="HIPAA Notice" />
+            <CardHeader>HIPAA Notice</CardHeader>
             <CardBody>
               <p className="text-sm text-gray-600 leading-relaxed">
                 MediConnect Pro is committed to protecting your health information in accordance with the Health Insurance
