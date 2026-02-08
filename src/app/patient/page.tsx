@@ -30,7 +30,7 @@ export default function PatientDashboard() {
   const loadDashboardData = async () => {
     try {
       // Check if patient profile exists, redirect to onboarding if not
-      const profileCheck = await checkPatient(user?.sub || '').catch(() => ({ exists: false }))
+      const profileCheck = await checkPatient(user?.sub || '').catch(() => ({ exists: false, patient: null }))
       if (!profileCheck.exists) {
         router.push('/patient/onboarding')
         return
