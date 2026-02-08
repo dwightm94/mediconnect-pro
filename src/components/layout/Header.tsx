@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { cn } from '@/lib/utils'
-import { Menu, X, LogOut, Settings } from 'lucide-react'
+import { Menu, X, LogOut } from 'lucide-react'
 import { useState } from 'react'
 
 interface NavItem {
@@ -17,6 +17,7 @@ const patientNav: NavItem[] = [
   { label: 'Appointments', href: '/patient/appointments' },
   { label: 'Records', href: '/patient/medical-records' },
   { label: 'Consents', href: '/patient/consents' },
+  { label: 'Settings', href: '/patient/settings' },
 ]
 
 const providerNav: NavItem[] = [
@@ -91,9 +92,7 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/patient/settings" className="nav-tab" title="Settings">
-              <Settings style={{ width: '18px', height: '18px' }} />
-            </Link>
+
           </nav>
 
           {/* Right side */}
