@@ -289,14 +289,14 @@ export default function SettingsPage() {
                   <div className="font-medium">Download My Data</div>
                   <div className="text-sm text-gray-500">Get a copy of all your health records and account data</div>
                 </div>
-                <Button variant="outline" className="text-sm">Request Download</Button>
+                <Button variant="secondary" className="text-sm">Request Download</Button>
               </div>
               <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
                 <div>
                   <div className="font-medium text-red-700">Delete My Account</div>
                   <div className="text-sm text-red-500">Permanently remove your account and all associated data</div>
                 </div>
-                <Button variant="outline" className="text-sm text-red-600 border-red-200 hover:bg-red-50">Delete Account</Button>
+                <Button variant="secondary" className="text-sm text-red-600 border-red-200 hover:bg-red-50">Delete Account</Button>
               </div>
             </CardBody>
           </Card>
