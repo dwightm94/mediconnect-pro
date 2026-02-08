@@ -17,6 +17,7 @@ const patientNav: NavItem[] = [
   { label: 'Appointments', href: '/patient/appointments' },
   { label: 'Records', href: '/patient/medical-records' },
   { label: 'Consents', href: '/patient/consents' },
+  { label: 'Settings', href: '/patient/settings' },
 ]
 
 const providerNav: NavItem[] = [
