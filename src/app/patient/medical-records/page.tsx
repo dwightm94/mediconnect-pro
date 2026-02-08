@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { getMedicalRecords } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, Chip, Loading, EmptyState, Modal } from '@/components/ui'
-import { Search, Filter, Download, FileText, FlaskConical, Image, Pill, Stethoscope, Activity } from 'lucide-react'
-
-// MedicalRecord type imported from @/lib/api
 []
 }
 
