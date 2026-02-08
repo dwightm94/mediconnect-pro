@@ -36,7 +36,7 @@ export default function PatientDashboard() {
         return
       }
       if (profileCheck.patient) {
-        setPatientName(`${profileCheck.patient.first_name} ${profileCheck.patient.last_name}`.trim())
+        setPatientName((`${profileCheck.patient.first_name} ${profileCheck.patient.last_name}`).trim())
       }
       const [apptResult, recordResult] = await Promise.all([
         getAppointments(user?.sub || '').catch(() => null),
