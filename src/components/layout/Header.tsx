@@ -91,6 +91,9 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/patient/settings" className="nav-tab" title="Settings">
+              <Settings style={{ width: '18px', height: '18px' }} />
+            </Link>
           </nav>
 
           {/* Right side */}
