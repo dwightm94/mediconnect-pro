@@ -103,10 +103,10 @@ export function Header() {
             {/* Settings */}
             <Link
               href="/patient/settings"
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', background: '#f3f4f6' }}
               title="Settings"
             >
-              <Settings className="w-5 h-5 text-gray-600" />
+              <Settings style={{ width: '20px', height: '20px', color: '#0A6E6E' }} />
             </Link>
             {/* User Menu */}
             {user && (
