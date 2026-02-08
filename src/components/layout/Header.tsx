@@ -102,14 +102,6 @@ export function Header() {
               {roleBadge.label}
             </span>
 
-            {/* Settings */}
-            <Link
-              href="/patient/settings"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '8px', background: '#f3f4f6' }}
-              title="Settings"
-            >
-              <Settings style={{ width: '20px', height: '20px', color: '#0A6E6E' }} />
-            </Link>
             {/* User Menu */}
             {user && (
               <div className="flex items-center gap-2">
