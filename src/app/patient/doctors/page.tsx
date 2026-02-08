@@ -154,7 +154,7 @@ export default function FindDoctorsPage() {
           doctorId: selectedDoctor.id,
           appointmentDate: selectedDate,
           appointmentTime: selectedTime,
-          consultationType: appointmentType,
+          consultationType: appointmentType === 'video' ? 'telehealth' : appointmentType,
           patientEmail: user?.email,
           patientName: user?.email?.split('@')[0]
         })
