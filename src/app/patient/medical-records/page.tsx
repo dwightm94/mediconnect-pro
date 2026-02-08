@@ -68,7 +68,7 @@ export default function RecordsPage() {
       filtered = filtered.filter(r =>
         r.title.toLowerCase().includes(query) ||
         r.provider.toLowerCase().includes(query) ||
-        r.organization.toLowerCase().includes(query) ||
+        r.organization?.toLowerCase().includes(query) ||
         r.category?.toLowerCase().includes(query)
       )
     }
