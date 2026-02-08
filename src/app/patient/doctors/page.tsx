@@ -28,7 +28,7 @@ interface TimeSlot {
 }
 
 export default function FindDoctorsPage() {
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([])
   const [isLoading, setIsLoading] = useState(true)
