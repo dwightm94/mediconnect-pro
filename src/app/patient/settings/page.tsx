@@ -103,7 +103,7 @@ export default function SettingsPage() {
     )
   }
 
-  if (isLoading) return <Loading message="Loading settings..." />
+  if (isLoading) return <Loading />
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
