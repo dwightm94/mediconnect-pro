@@ -47,6 +47,8 @@ export interface Appointment {
   meetingLink: string
   paymentStatus: string
   paymentAmount: string
+  organization?: string
+  notes?: string
 }
 
 export interface MedicalRecord {
