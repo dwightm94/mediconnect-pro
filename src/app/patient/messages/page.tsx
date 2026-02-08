@@ -170,12 +170,10 @@ export default function MessagesPage() {
     }
 
     try {
-      await apiCall('/messages', {
-        method: 'POST',
-        body: JSON.stringify({
-          conversationId: selectedConversation.id,
-          content: newMessage
-        })
+      await sendMessage({
+        appointmentId: selectedConversation.id,
+        content: newMessage,
+        senderType: 'patient',
       }).catch(() => null)
 
       // Update local state
