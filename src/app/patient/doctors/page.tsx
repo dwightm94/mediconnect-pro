@@ -74,7 +74,24 @@ export default function FindDoctorsPage() {
   const loadDoctors = async () => {
     try {
       const data = await apiCall('/doctors').catch(() => null)
-      setDoctors(data?.doctors || mockDoctors)
+      const mapped = (data?.doctors || []).map((d: any) => ({
+        id: d.doctorId || d.id || '',
+        name: d.name || ('Dr. ' + (d.first_name || '') + ' ' + (d.last_name || '')).trim(),
+        specialty: d.specialty || '',
+        organization: d.organization || '',
+        location: d.location || '',
+        rating: parseFloat(d.rating) || 0,
+        reviewCount: d.reviews || d.reviewCount || 0,
+        availability: d.availability || 'Available',
+        acceptingNew: d.acceptingNew !== false,
+        bio: d.bio || '',
+        languages: typeof d.languages === 'string' ? d.languages.split(',').map((l: string) => l.trim()) : (d.languages || []),
+        education: d.education || '',
+        nextAvailable: d.nextAvailable || '',
+        available: d.is_active !== false,
+        image: d.profile_image || d.image || '',
+      }))
+      setDoctors(mapped.length > 0 ? mapped : mockDoctors)
     } catch (error) {
       setDoctors(mockDoctors)
     } finally {
