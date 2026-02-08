@@ -6,23 +6,7 @@ import { getDoctors, bookAppointment, type Doctor } from '@/lib/api'
 import { Button, Card, CardBody, Input, Chip, Loading, EmptyState, Modal } from '@/components/ui'
 import { Search, MapPin, Star, Calendar, Clock, Filter } from 'lucide-react'
 
-interface Doctor {
-  id: string
-  name: string
-  specialty: string
-  organization: string
-  location: string
-  rating: number
-  reviewCount: number
-  availability: string
-  acceptingNew: boolean
-  image?: string
-  bio?: string
-  languages?: string[]
-  education?: string
-  nextAvailable?: string
-}
-
+// Doctor type imported from @/lib/api
 interface TimeSlot {
   time: string
   available: boolean

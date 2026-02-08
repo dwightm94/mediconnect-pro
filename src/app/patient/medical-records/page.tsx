@@ -6,21 +6,8 @@ import { getMedicalRecords } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, Chip, Loading, EmptyState, Modal } from '@/components/ui'
 import { Search, Filter, Download, FileText, FlaskConical, Image, Pill, Stethoscope, Activity } from 'lucide-react'
 
-interface MedicalRecord {
-  id: string
-  type: 'lab' | 'imaging' | 'visit' | 'prescription' | 'immunization' | 'procedure'
-  title: string
-  provider: string
-  organization: string
-  date: string
-  status: 'final' | 'preliminary' | 'amended'
-  category?: string
-  value?: string
-  unit?: string
-  referenceRange?: string
-  interpretation?: 'normal' | 'abnormal' | 'critical'
-  details?: string
-  attachments?: { name: string; type: string }[]
+// MedicalRecord type imported from @/lib/api
+[]
 }
 
 export default function RecordsPage() {
