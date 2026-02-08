@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useAuth, apiCall } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
+import { getMessages, sendMessage } from '@/lib/api'
 import { Button, Card, CardBody, Chip, Loading, EmptyState } from '@/components/ui'
 import { Search, Send, Paperclip, MoreVertical, Phone, Video, ChevronLeft } from 'lucide-react'
 
@@ -107,7 +108,7 @@ export default function MessagesPage() {
 
   const loadConversations = async () => {
     try {
-      const data = await apiCall(`/messages/${user?.sub}`).catch(() => null)
+      const data = await getMessages(user?.sub || '').catch(() => null)
       setConversations(data?.conversations || mockConversations)
     } catch (error) {
       setConversations(mockConversations)

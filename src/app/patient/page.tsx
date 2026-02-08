@@ -1,34 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth, apiCall } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
+import { getAppointments, getMedicalRecords, type Appointment, type MedicalRecord } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, StatCard, Chip, Loading, EmptyState } from '@/components/ui'
 import { Calendar, FileText, Users, Video, MessageSquare, Shield, Clock, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
-interface Appointment {
-  id: string
-  providerName: string
-  specialty: string
-  dateTime: string
-  type: 'in-person' | 'video'
-  status: 'confirmed' | 'pending' | 'completed'
-  location?: string
-}
-
-interface Record {
-  id: string
-  type: string
-  title: string
-  provider: string
-  date: string
-  status: string
-}
+// Types imported from @/lib/api
 
 export default function PatientDashboard() {
   const { user, isAuthenticated, signInWithGoogle } = useAuth()
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [records, setRecords] = useState<Record[]>([])
+  const [records, setRecords] = useState<MedicalRecord[]>([])
   const [stats, setStats] = useState({ appointments: 0, records: 0, prescriptions: 0, consents: 0 })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -42,61 +26,34 @@ export default function PatientDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // Try to load real data, fall back to mock data
-      const [apptData, recordData] = await Promise.all([
-        apiCall(`/appointments/${user?.sub}`).catch(() => null),
-        apiCall(`/medical-records/${user?.sub}`).catch(() => null)
+      const [apptResult, recordResult] = await Promise.all([
+        getAppointments(user?.sub || '').catch(() => null),
+        getMedicalRecords(user?.sub || '').catch(() => null)
       ])
 
-      // Mock data for demo
       const mockAppointments: Appointment[] = [
-        { id: '1', providerName: 'Dr. Sarah Chen', specialty: 'Primary Care', dateTime: '2026-02-10T09:00:00', type: 'in-person', status: 'confirmed', location: 'City Medical Center' },
-        { id: '2', providerName: 'Dr. Michael Roberts', specialty: 'Cardiology', dateTime: '2026-02-12T14:30:00', type: 'video', status: 'confirmed' },
-        { id: '3', providerName: 'Dr. Emily Watson', specialty: 'Dermatology', dateTime: '2026-02-15T11:00:00', type: 'in-person', status: 'pending', location: 'Downtown Clinic' },
+        { id: '1', providerName: 'Dr. Sarah Chen', specialty: 'Primary Care', dateTime: '2026-02-10T09:00:00', type: 'in-person', status: 'confirmed', location: 'City Medical Center', reason: '', meetingLink: '', paymentStatus: '', paymentAmount: '' },
+        { id: '2', providerName: 'Dr. Michael Roberts', specialty: 'Cardiology', dateTime: '2026-02-12T14:30:00', type: 'video', status: 'confirmed', location: '', reason: '', meetingLink: '', paymentStatus: '', paymentAmount: '' },
+        { id: '3', providerName: 'Dr. Emily Watson', specialty: 'Dermatology', dateTime: '2026-02-15T11:00:00', type: 'in-person', status: 'pending', location: 'Downtown Clinic', reason: '', meetingLink: '', paymentStatus: '', paymentAmount: '' },
       ]
 
-      const mockRecords: Record[] = [
+      const mockRecords: MedicalRecord[] = [
         { id: '1', type: 'Lab Result', title: 'Complete Blood Count', provider: 'BioTech Labs', date: '2026-02-01', status: 'final' },
         { id: '2', type: 'Imaging', title: 'Chest X-Ray', provider: 'City Medical Center', date: '2026-01-28', status: 'final' },
         { id: '3', type: 'Visit Note', title: 'Annual Physical', provider: 'Dr. Sarah Chen', date: '2026-01-15', status: 'final' },
       ]
 
-      setAppointments((apptData?.appointments || []).map((a: any) => ({
-        id: a.appointmentId || a.id,
-        providerName: a.doctorName || a.providerName || 'Unknown Provider',
-        specialty: a.doctorSpecialty || a.specialty || '',
-        dateTime: a.appointmentDate ? a.appointmentDate + 'T' + (a.appointmentTime || '00:00:00') : a.dateTime,
-        type: a.consultationType === 'video' ? 'video' : 'in-person',
-        status: a.status || 'pending',
-        location: a.location || '',
-      })) .length ? (apptData?.appointments || []).map((a: any) => ({
-        id: a.appointmentId || a.id,
-        providerName: a.doctorName || a.providerName || 'Unknown Provider',
-        specialty: a.doctorSpecialty || a.specialty || '',
-        dateTime: a.appointmentDate ? a.appointmentDate + 'T' + (a.appointmentTime || '00:00:00') : a.dateTime,
-        type: a.consultationType === 'video' ? 'video' : 'in-person',
-        status: a.status || 'pending',
-        location: a.location || '',
-      })) : mockAppointments)
-      setRecords((recordData?.records || []).map((r: any) => ({
-        id: r.record_id || r.id,
-        type: r.record_type || r.type || 'Document',
-        title: r.title || r.record_type || 'Untitled',
-        provider: r.provider_name || r.provider || 'Unknown',
-        date: r.record_date || r.date || '',
-        status: r.status || 'final',
-      })) || mockRecords)
+      const realAppts = apptResult?.appointments || []
+      const realRecords = recordResult || []
+
+      setAppointments(realAppts.length > 0 ? realAppts : mockAppointments)
+      setRecords(realRecords.length > 0 ? realRecords : mockRecords)
       setStats({
-        appointments: apptData?.appointments?.length || 3,
-        records: recordData?.records?.length || 12,
+        appointments: realAppts.length || 3,
+        records: realRecords.length || 12,
         prescriptions: 3,
         consents: 5
       })
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error)
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   const formatDateTime = (dateTime: string) => {

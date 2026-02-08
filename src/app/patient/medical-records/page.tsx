@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth, apiCall } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
+import { getMedicalRecords } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, Chip, Loading, EmptyState, Modal } from '@/components/ui'
 import { Search, Filter, Download, FileText, FlaskConical, Image, Pill, Stethoscope, Activity } from 'lucide-react'
 
@@ -67,8 +68,8 @@ export default function RecordsPage() {
 
   const loadRecords = async () => {
     try {
-      const data = await apiCall(`/medical-records/${user?.sub}`).catch(() => null)
-      setRecords(data?.records || mockRecords)
+      const data = await getMedicalRecords(user?.sub || '').catch(() => null)
+      setRecords(Array.isArray(data) && data.length > 0 ? data : mockRecords)
     } catch (error) {
       setRecords(mockRecords)
     } finally {

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth, apiCall } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
+import { getDoctors, bookAppointment, type Doctor } from '@/lib/api'
 import { Button, Card, CardBody, Input, Chip, Loading, EmptyState, Modal } from '@/components/ui'
 import { Search, MapPin, Star, Calendar, Clock, Filter } from 'lucide-react'
 
@@ -73,25 +74,8 @@ export default function FindDoctorsPage() {
 
   const loadDoctors = async () => {
     try {
-      const data = await apiCall('/doctors').catch(() => null)
-      const mapped = (data?.doctors || []).map((d: any) => ({
-        id: d.doctorId || d.id || '',
-        name: d.name || ('Dr. ' + (d.first_name || '') + ' ' + (d.last_name || '')).trim(),
-        specialty: d.specialty || '',
-        organization: d.organization || '',
-        location: d.location || '',
-        rating: parseFloat(d.rating) || 0,
-        reviewCount: d.reviews || d.reviewCount || 0,
-        availability: d.availability || 'Available',
-        acceptingNew: d.acceptingNew !== false,
-        bio: d.bio || '',
-        languages: typeof d.languages === 'string' ? d.languages.split(',').map((l: string) => l.trim()) : (d.languages || []),
-        education: d.education || '',
-        nextAvailable: d.nextAvailable || '',
-        available: d.is_active !== false,
-        image: d.profile_image || d.image || '',
-      }))
-      setDoctors(mapped.length > 0 ? mapped : mockDoctors)
+      const doctors = await getDoctors().catch(() => [])
+      setDoctors(doctors.length > 0 ? doctors : mockDoctors)
     } catch (error) {
       setDoctors(mockDoctors)
     } finally {
@@ -147,17 +131,14 @@ export default function FindDoctorsPage() {
     if (!selectedDoctor || !selectedDate || !selectedTime) return
 
     try {
-      await apiCall('/appointments', {
-        method: 'POST',
-        body: JSON.stringify({
-          patientId: user?.sub,
-          doctorId: selectedDoctor.id,
-          appointmentDate: selectedDate,
-          appointmentTime: selectedTime,
-          consultationType: appointmentType === 'video' ? 'telehealth' : appointmentType,
-          patientEmail: user?.email,
-          patientName: user?.email?.split('@')[0]
-        })
+      await bookAppointment({
+        patientId: user?.sub || '',
+        doctorId: selectedDoctor.id,
+        date: selectedDate,
+        time: selectedTime,
+        type: appointmentType,
+        patientEmail: user?.email,
+        patientName: user?.email?.split('@')[0],
       }).catch(() => null)
 
       setBookingSuccess(true)

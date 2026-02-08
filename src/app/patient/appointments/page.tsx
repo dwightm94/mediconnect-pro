@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth, apiCall } from '@/lib/auth-context'
+import { useAuth } from '@/lib/auth-context'
+import { getAppointments, cancelAppointment, type Appointment } from '@/lib/api'
 import { Button, Card, CardHeader, CardBody, Chip, Loading, EmptyState, Modal } from '@/components/ui'
 import { Calendar, Clock, MapPin, Video, Phone, X, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
@@ -48,8 +49,8 @@ export default function AppointmentsPage() {
 
   const loadAppointments = async () => {
     try {
-      const data = await apiCall(`/appointments/${user?.sub}`).catch(() => null)
-      setAppointments(data?.appointments || mockAppointments)
+      const result = await getAppointments(user?.sub || '').catch(() => null)
+      setAppointments(result?.appointments?.length ? result.appointments : mockAppointments)
     } catch (error) {
       setAppointments(mockAppointments)
     } finally {
@@ -106,10 +107,7 @@ export default function AppointmentsPage() {
     if (!selectedAppointment) return
 
     try {
-      await apiCall(`/appointments/update/${selectedAppointment.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ action: 'cancel' })
-      }).catch(() => null)
+      await cancelAppointment(selectedAppointment.id).catch(() => null)
 
       // Update local state
       setAppointments(prev => 
