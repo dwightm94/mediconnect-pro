@@ -9,19 +9,19 @@ import {
   Users, 
   Calendar, 
   FileText, 
-  Shield, 
   MessageSquare,
+  Settings,
   LogOut
 } from 'lucide-react'
 import { Loading } from '@/components/ui'
 
 const navItems = [
   { href: '/patient', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/patient/doctors', label: 'Find Doctors', icon: Users },
+  { href: '/patient/doctors', label: 'Doctors', icon: Users },
   { href: '/patient/appointments', label: 'Appointments', icon: Calendar },
   { href: '/patient/medical-records', label: 'Records', icon: FileText },
-  { href: '/patient/consents', label: 'Consents', icon: Shield },
   { href: '/patient/messages', label: 'Messages', icon: MessageSquare },
+  { href: '/patient/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function PatientLayout({
