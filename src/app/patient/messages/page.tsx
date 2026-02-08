@@ -109,7 +109,7 @@ export default function MessagesPage() {
   const loadConversations = async () => {
     try {
       const data = await getMessages(user?.sub || '').catch(() => null)
-      setConversations(data?.conversations || mockConversations)
+      setConversations(Array.isArray(data) && data.length > 0 ? data as any : mockConversations)
     } catch (error) {
       setConversations(mockConversations)
     } finally {
