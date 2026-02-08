@@ -56,6 +56,14 @@ export interface MedicalRecord {
   provider: string
   date: string
   status: string
+  organization?: string
+  category?: string
+  value?: string
+  unit?: string
+  referenceRange?: string
+  interpretation?: string
+  details?: string
+  attachments?: { name: string; type: string }[]
 }
 
 export interface Message {
