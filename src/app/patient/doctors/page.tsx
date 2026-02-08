@@ -317,21 +317,13 @@ export default function FindDoctorsPage() {
             {/* Date Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {getNextDays().map((day) => (
-                  <button
-                    key={day.date}
-                    onClick={() => setSelectedDate(day.date)}
-                    className={`px-4 py-2 rounded-lg border-2 whitespace-nowrap transition-all ${
-                      selectedDate === day.date
-                        ? 'border-[#0A6E6E] bg-[rgba(14,234,202,0.10)]'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {day.label}
-                  </button>
-                ))}
-              </div>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#0A6E6E] focus:outline-none transition-colors text-gray-700"
+              />
             </div>
 
             {/* Time Selection */}
