@@ -298,3 +298,12 @@ export async function registerPatient(params: {
   })
   return { success: data?.success || false }
 }
+
+/** Update patient profile */
+export async function updatePatient(patientId: string, data: Record<string, any>): Promise<{ success: boolean }> {
+  const result = await apiCall('/patients/' + patientId, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+  return { success: result?.success || false }
+}
