@@ -54,6 +54,11 @@ export default function PatientDashboard() {
         prescriptions: 3,
         consents: 5
       })
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const formatDateTime = (dateTime: string) => {
