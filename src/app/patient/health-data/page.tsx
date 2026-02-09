@@ -161,11 +161,11 @@ export default function UnifiedHealthPage() {
   const [activeTab, setActiveTab] = useState<HealthTab>('overview')
   const [expandedLab, setExpandedLab] = useState<string | null>(null)
   const [sourceFilter, setSourceFilter] = useState<string>('all')
-  const [labs, setLabs] = useState(labs)
-  const [medications, setMedications] = useState(medications)
-  const [conditions, setConditions] = useState(conditions)
-  const [allergies, setAllergies] = useState(allergies)
-  const [immunizations, setImmunizations] = useState(immunizations)
+  const [labs, setLabs] = useState(MOCK_LABS)
+  const [medications, setMedications] = useState(MOCK_MEDICATIONS)
+  const [conditions, setConditions] = useState(MOCK_CONDITIONS)
+  const [allergies, setAllergies] = useState(MOCK_ALLERGIES)
+  const [immunizations, setImmunizations] = useState(MOCK_IMMUNIZATIONS)
   const [dataSource, setDataSource] = useState<'mock' | 'live'>('mock')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -191,11 +191,11 @@ export default function UnifiedHealthPage() {
             if (r.Immunization) allImms.push(...normalizeImmunizations(r.Immunization, src, srcName))
           }
           if (allLabs.length || allMeds.length || allConds.length || allAllergies.length || allImms.length) {
-            setLabs(allLabs.length ? allLabs : labs)
-            setMedications(allMeds.length ? allMeds : medications)
-            setConditions(allConds.length ? allConds : conditions)
-            setAllergies(allAllergies.length ? allAllergies : allergies)
-            setImmunizations(allImms.length ? allImms : immunizations)
+            setLabs(allLabs.length ? allLabs : MOCK_LABS)
+            setMedications(allMeds.length ? allMeds : MOCK_MEDICATIONS)
+            setConditions(allConds.length ? allConds : MOCK_CONDITIONS)
+            setAllergies(allAllergies.length ? allAllergies : MOCK_ALLERGIES)
+            setImmunizations(allImms.length ? allImms : MOCK_IMMUNIZATIONS)
             setDataSource('live')
           }
         }
