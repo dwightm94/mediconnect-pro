@@ -1,100 +1,126 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/lib/auth-context'
-import { Loading } from '@/components/ui'
-import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { useSearchParams, useRouter } from 'next/navigation'
 
-export default function FHIRCallbackPage() {
-  const router = useRouter()
+const API_BASE = 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
+
+export default function OAuthCallbackPage() {
   const searchParams = useSearchParams()
-  const { user } = useAuth()
+  const router = useRouter()
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('Connecting to your health portal...')
+  const [details, setDetails] = useState('')
 
   useEffect(() => {
-    const handleCallback = async () => {
-      // EHR sends back ?code=xxx&state=yyy (success) or ?error=xxx (denied)
-      const code = searchParams.get('code')
-      const state = searchParams.get('state')
-      const error = searchParams.get('error')
+    const code = searchParams.get('code')
+    const stateParam = searchParams.get('state')
+    const error = searchParams.get('error')
 
-      if (error) {
-        setStatus('error')
-        setMessage('Authorization denied: ' + (searchParams.get('error_description') || error))
-        return
-      }
+    if (error) {
+      setStatus('error')
+      setMessage('Authorization was denied')
+      setDetails(searchParams.get('error_description') || error)
+      return
+    }
 
-      if (!code || !state) {
-        setStatus('error')
-        setMessage('Missing authorization code or state parameter')
-        return
-      }
+    if (!code || !stateParam) {
+      setStatus('error')
+      setMessage('Missing authorization code')
+      setDetails('The health portal did not return the expected data.')
+      return
+    }
 
+    // Decode state to get provider info
+    let state: { provider: string; timestamp: number }
+    try {
+      state = JSON.parse(atob(stateParam))
+    } catch {
+      setStatus('error')
+      setMessage('Invalid callback state')
+      return
+    }
+
+    // Get patient ID from localStorage or session
+    const patientId = localStorage.getItem('patientId') || 'patient_default'
+
+    // Exchange the auth code for tokens via our Lambda
+    const exchangeCode = async () => {
       try {
-        // Decode state to get provider info (epic/cerner/etc)
-        const stateData = JSON.parse(atob(state))
-        
-        // Send code to our Lambda to exchange for tokens
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
-        const response = await fetch(API_BASE + '/fhir/callback', {
+        setMessage(`Exchanging authorization with ${state.provider === 'epic' ? 'Epic MyChart' : state.provider}...`)
+
+        const response = await fetch(`${API_BASE}/fhir/callback`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             code,
-            state: stateData,
-            redirectUri: window.location.origin + '/patient/health-sources/callback',
-            patientId: user?.sub,
+            provider: state.provider,
+            patientId,
           }),
         })
 
-        if (!response.ok) throw new Error('Token exchange failed')
+        const data = await response.json()
 
-        setStatus('success')
-        setMessage('Successfully connected to ' + (stateData.provider === 'epic' ? 'Epic MyChart' : 'your health portal') + '!')
-        setTimeout(() => router.push('/patient/health-sources'), 2000)
-      } catch {
+        if (data.success) {
+          setStatus('success')
+          setMessage('Successfully connected!')
+          setDetails(`Connected to ${data.provider === 'epic' ? 'Epic MyChart' : data.provider}. Patient FHIR ID: ${data.patientFhirId || 'obtained'}`)
+          
+          // Redirect back to health sources after 2 seconds
+          setTimeout(() => {
+            router.push('/patient/health-sources')
+          }, 2000)
+        } else {
+          setStatus('error')
+          setMessage('Connection failed')
+          setDetails(data.error || JSON.stringify(data.details || {}))
+        }
+      } catch (err) {
         setStatus('error')
-        setMessage('Failed to complete the connection. Please try again.')
+        setMessage('Network error')
+        setDetails(err instanceof Error ? err.message : 'Failed to connect to server')
       }
     }
 
-    if (user) handleCallback()
-  }, [user, searchParams, router])
+    exchangeCode()
+  }, [searchParams, router])
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="text-center max-w-md">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+      <div style={{ background: 'white', borderRadius: '12px', padding: '48px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.1)' }}>
         {status === 'processing' && (
-          <div>
-            <Loading text="Connecting to your health portal..." />
-            <p className="text-sm text-gray-500 mt-4">Exchanging authorization tokens securely...</p>
-          </div>
+          <>
+            <div style={{ width: '48px', height: '48px', border: '4px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 24px' }} />
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1e293b', marginBottom: '8px' }}>{message}</h2>
+            <p style={{ color: '#64748b' }}>Please wait while we securely connect your account...</p>
+          </>
         )}
         {status === 'success' && (
-          <div className="space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-50 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+          <>
+            <div style={{ width: '48px', height: '48px', background: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <span style={{ color: 'white', fontSize: '24px' }}>✓</span>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Connected!</h2>
-            <p className="text-gray-600">{message}</p>
-            <p className="text-sm text-gray-400">Redirecting to your health sources...</p>
-          </div>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#10b981', marginBottom: '8px' }}>{message}</h2>
+            <p style={{ color: '#64748b', marginBottom: '16px' }}>{details}</p>
+            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Redirecting to your health sources...</p>
+          </>
         )}
         {status === 'error' && (
-          <div className="space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center">
-              <AlertCircle className="w-8 h-8 text-red-500" />
+          <>
+            <div style={{ width: '48px', height: '48px', background: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <span style={{ color: 'white', fontSize: '24px' }}>✗</span>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Connection Failed</h2>
-            <p className="text-gray-600">{message}</p>
-            <button onClick={() => router.push('/patient/health-sources')}
-              className="mt-4 px-6 py-2.5 bg-[#0A6E6E] text-white rounded-xl font-medium hover:bg-[#054848] transition-colors">
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#ef4444', marginBottom: '8px' }}>{message}</h2>
+            <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px', wordBreak: 'break-word' }}>{details}</p>
+            <button
+              onClick={() => router.push('/patient/health-sources')}
+              style={{ padding: '10px 24px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}
+            >
               Back to Health Sources
             </button>
-          </div>
+          </>
         )}
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
   )
