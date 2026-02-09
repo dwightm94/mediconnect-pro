@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { 
   Activity, Pill, Heart, AlertCircle, Syringe, FileText, Clock,
@@ -15,7 +15,7 @@ type HealthTab = 'overview' | 'labs' | 'medications' | 'conditions' | 'allergies
 // Each record has a "source" field showing which portal it came from
 // In production: fetched from our fhir_health_data DynamoDB table
 
-const MOCK_LABS = [
+const labs = [
   {
     id: 'lab_epic_001', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart',
     date: '2026-02-01', title: 'Complete Blood Count (CBC)', status: 'final', category: 'laboratory',
@@ -49,25 +49,25 @@ const MOCK_LABS = [
   },
 ]
 
-const MOCK_MEDICATIONS = [
+const medications = [
   { id: 'med_epic_001', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart', title: 'Lisinopril 10mg', dosage: '10mg tablet, once daily', status: 'active', prescriber: 'Dr. Sarah Chen', startDate: '2025-06-15', refillDate: '2026-02-28' },
   { id: 'med_epic_002', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart', title: 'Metformin 500mg', dosage: '500mg tablet, twice daily with meals', status: 'active', prescriber: 'Dr. Sarah Chen', startDate: '2025-08-20', refillDate: '2026-03-15' },
   { id: 'med_cerner_001', source: 'cerner', sourceName: 'VA Hospital via Oracle Health', title: 'Atorvastatin 20mg', dosage: '20mg tablet, once daily at bedtime', status: 'active', prescriber: 'Dr. Michael Ross', startDate: '2025-01-10', refillDate: '2026-02-10' },
 ]
 
-const MOCK_CONDITIONS = [
+const conditions = [
   { id: 'cond_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'Essential Hypertension', status: 'active', onset: '2024-03-15', category: 'Cardiovascular' },
   { id: 'cond_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Type 2 Diabetes Mellitus', status: 'active', onset: '2025-08-20', category: 'Endocrine' },
   { id: 'cond_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Hyperlipidemia', status: 'active', onset: '2025-01-10', category: 'Cardiovascular' },
 ]
 
-const MOCK_ALLERGIES = [
+const allergies = [
   { id: 'allergy_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'Penicillin', reaction: 'Rash, Hives', severity: 'moderate', type: 'medication' },
   { id: 'allergy_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Sulfa Drugs', reaction: 'Anaphylaxis', severity: 'severe', type: 'medication' },
   { id: 'allergy_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Shellfish', reaction: 'Swelling', severity: 'mild', type: 'food' },
 ]
 
-const MOCK_IMMUNIZATIONS = [
+const immunizations = [
   { id: 'imm_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'COVID-19 Vaccine (Pfizer)', date: '2025-10-15', status: 'completed', dose: 'Booster #3' },
   { id: 'imm_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Influenza Vaccine 2025-26', date: '2025-09-20', status: 'completed', dose: 'Annual' },
   { id: 'imm_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Tdap', date: '2024-06-10', status: 'completed', dose: 'Booster' },
@@ -79,18 +79,142 @@ const SOURCE_COLORS: Record<string, string> = {
   epic: '#E8173A', cerner: '#C4262E', meditech: '#00843D', nextgen: '#0066CC',
 }
 
+const API_BASE = 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
+
+// Normalize FHIR Observation → our lab format
+function normalizeLabs(observations: any[], source: string, sourceName: string) {
+  return observations.map((obs: any, i: number) => ({
+    id: obs.id || `lab_${source}_${i}`,
+    source,
+    sourceName,
+    date: obs.effectiveDateTime || obs.issued || '',
+    title: obs.code?.text || obs.code?.coding?.[0]?.display || 'Lab Result',
+    status: obs.status || 'final',
+    category: 'laboratory',
+    components: obs.component
+      ? obs.component.map((c: any) => ({
+          name: c.code?.text || c.code?.coding?.[0]?.display || '',
+          value: c.valueQuantity?.value?.toString() || c.valueString || '',
+          unit: c.valueQuantity?.unit || '',
+          range: c.referenceRange?.[0]?.text || '',
+          status: 'normal',
+        }))
+      : [{
+          name: obs.code?.text || obs.code?.coding?.[0]?.display || '',
+          value: obs.valueQuantity?.value?.toString() || obs.valueString || '',
+          unit: obs.valueQuantity?.unit || '',
+          range: obs.referenceRange?.[0]?.text || '',
+          status: 'normal',
+        }],
+  }))
+}
+
+function normalizeMeds(meds: any[], source: string, sourceName: string) {
+  return meds.map((m: any, i: number) => ({
+    id: m.id || `med_${source}_${i}`,
+    source,
+    sourceName,
+    title: m.medicationCodeableConcept?.text || m.medicationReference?.display || 'Medication',
+    dosage: m.dosageInstruction?.[0]?.text || '',
+    status: m.status || 'active',
+    startDate: m.authoredOn || '',
+  }))
+}
+
+function normalizeConditions(conditions: any[], source: string, sourceName: string) {
+  return conditions.map((c: any, i: number) => ({
+    id: c.id || `cond_${source}_${i}`,
+    source,
+    sourceName,
+    title: c.code?.text || c.code?.coding?.[0]?.display || 'Condition',
+    status: c.clinicalStatus?.coding?.[0]?.code || 'active',
+    onset: c.onsetDateTime || c.recordedDate || '',
+    category: c.category?.[0]?.coding?.[0]?.display || 'Problem',
+  }))
+}
+
+function normalizeAllergies(allergies: any[], source: string, sourceName: string) {
+  return allergies.map((a: any, i: number) => ({
+    id: a.id || `allergy_${source}_${i}`,
+    source,
+    sourceName,
+    title: a.code?.text || a.code?.coding?.[0]?.display || 'Allergy',
+    severity: a.reaction?.[0]?.severity || 'moderate',
+    reaction: a.reaction?.[0]?.manifestation?.[0]?.text || a.reaction?.[0]?.manifestation?.[0]?.coding?.[0]?.display || '',
+    category: a.category?.[0] || 'medication',
+  }))
+}
+
+function normalizeImmunizations(immunizations: any[], source: string, sourceName: string) {
+  return immunizations.map((im: any, i: number) => ({
+    id: im.id || `imm_${source}_${i}`,
+    source,
+    sourceName,
+    title: im.vaccineCode?.text || im.vaccineCode?.coding?.[0]?.display || 'Immunization',
+    date: im.occurrenceDateTime || '',
+    status: im.status || 'completed',
+    dose: im.protocolApplied?.[0]?.doseNumberString || '',
+  }))
+}
+
 export default function UnifiedHealthPage() {
   const [activeTab, setActiveTab] = useState<HealthTab>('overview')
   const [expandedLab, setExpandedLab] = useState<string | null>(null)
   const [sourceFilter, setSourceFilter] = useState<string>('all')
+  const [labs, setLabs] = useState(labs)
+  const [medications, setMedications] = useState(medications)
+  const [conditions, setConditions] = useState(conditions)
+  const [allergies, setAllergies] = useState(allergies)
+  const [immunizations, setImmunizations] = useState(immunizations)
+  const [dataSource, setDataSource] = useState<'mock' | 'live'>('mock')
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Try to fetch real FHIR data from connected portals
+  useEffect(() => {
+    const fetchHealthData = async () => {
+      const patientId = localStorage.getItem('patientId') || 'patient_default'
+      setIsLoading(true)
+      try {
+        const res = await fetch(`${API_BASE}/fhir/health-data?patientId=${patientId}`)
+        const json = await res.json()
+        if (json.data && Object.keys(json.data).length > 0) {
+          let allLabs: any[] = [], allMeds: any[] = [], allConds: any[] = [], allAllergies: any[] = [], allImms: any[] = []
+          for (const [provider, info] of Object.entries(json.data) as any[]) {
+            if (info.error) continue
+            const src = provider
+            const srcName = info.providerName || provider
+            const r = info.resources || {}
+            if (r.Observation) allLabs.push(...normalizeLabs(r.Observation, src, srcName))
+            if (r.MedicationRequest) allMeds.push(...normalizeMeds(r.MedicationRequest, src, srcName))
+            if (r.Condition) allConds.push(...normalizeConditions(r.Condition, src, srcName))
+            if (r.AllergyIntolerance) allAllergies.push(...normalizeAllergies(r.AllergyIntolerance, src, srcName))
+            if (r.Immunization) allImms.push(...normalizeImmunizations(r.Immunization, src, srcName))
+          }
+          if (allLabs.length || allMeds.length || allConds.length || allAllergies.length || allImms.length) {
+            setLabs(allLabs.length ? allLabs : labs)
+            setMedications(allMeds.length ? allMeds : medications)
+            setConditions(allConds.length ? allConds : conditions)
+            setAllergies(allAllergies.length ? allAllergies : allergies)
+            setImmunizations(allImms.length ? allImms : immunizations)
+            setDataSource('live')
+          }
+        }
+      } catch (err) {
+        console.log('Using mock data (no connections or API error)')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchHealthData()
+  }, [])
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Activity },
-    { id: 'labs', label: 'Labs', icon: Activity, count: MOCK_LABS.length },
-    { id: 'medications', label: 'Meds', icon: Pill, count: MOCK_MEDICATIONS.length },
-    { id: 'conditions', label: 'Conditions', icon: Heart, count: MOCK_CONDITIONS.length },
-    { id: 'allergies', label: 'Allergies', icon: AlertCircle, count: MOCK_ALLERGIES.length },
-    { id: 'immunizations', label: 'Vaccines', icon: Syringe, count: MOCK_IMMUNIZATIONS.length },
+    { id: 'labs', label: 'Labs', icon: Activity, count: labs.length },
+    { id: 'medications', label: 'Meds', icon: Pill, count: medications.length },
+    { id: 'conditions', label: 'Conditions', icon: Heart, count: conditions.length },
+    { id: 'allergies', label: 'Allergies', icon: AlertCircle, count: allergies.length },
+    { id: 'immunizations', label: 'Vaccines', icon: Syringe, count: immunizations.length },
     { id: 'timeline', label: 'Timeline', icon: Clock },
   ]
 
@@ -158,10 +282,10 @@ export default function UnifiedHealthPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Lab Results', count: MOCK_LABS.length, icon: Activity, color: '#0A6E6E' },
-              { label: 'Active Meds', count: MOCK_MEDICATIONS.length, icon: Pill, color: '#7C3AED' },
-              { label: 'Conditions', count: MOCK_CONDITIONS.length, icon: Heart, color: '#DC2626' },
-              { label: 'Allergies', count: MOCK_ALLERGIES.length, icon: AlertCircle, color: '#F59E0B' },
+              { label: 'Lab Results', count: labs.length, icon: Activity, color: '#0A6E6E' },
+              { label: 'Active Meds', count: medications.length, icon: Pill, color: '#7C3AED' },
+              { label: 'Conditions', count: conditions.length, icon: Heart, color: '#DC2626' },
+              { label: 'Allergies', count: allergies.length, icon: AlertCircle, color: '#F59E0B' },
             ].map((card) => (
               <div key={card.label} className="bg-white rounded-xl border border-gray-200 p-4">
                 <div className="flex items-center gap-3">
@@ -179,7 +303,7 @@ export default function UnifiedHealthPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h3 className="font-semibold text-gray-900 mb-4">Recent Lab Results</h3>
             <div className="space-y-3">
-              {MOCK_LABS.map((lab) => (
+              {labs.map((lab) => (
                 <div key={lab.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Activity className="w-4 h-4 text-[#0A6E6E]" />
@@ -196,7 +320,7 @@ export default function UnifiedHealthPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h3 className="font-semibold text-gray-900 mb-4">Active Medications</h3>
             <div className="space-y-3">
-              {MOCK_MEDICATIONS.map((med) => (
+              {medications.map((med) => (
                 <div key={med.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Pill className="w-4 h-4 text-purple-600" />
@@ -216,7 +340,7 @@ export default function UnifiedHealthPage() {
       {/* ── LABS TAB ── Expandable lab panels with individual results */}
       {activeTab === 'labs' && (
         <div className="space-y-4">
-          {MOCK_LABS.map((lab) => (
+          {labs.map((lab) => (
             <div key={lab.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <button onClick={() => setExpandedLab(expandedLab === lab.id ? null : lab.id)}
                 className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors">
@@ -263,7 +387,7 @@ export default function UnifiedHealthPage() {
       {/* ── MEDICATIONS TAB ── */}
       {activeTab === 'medications' && (
         <div className="space-y-3">
-          {MOCK_MEDICATIONS.map((med) => (
+          {medications.map((med) => (
             <div key={med.id} className="bg-white rounded-xl border border-gray-200 p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
@@ -293,7 +417,7 @@ export default function UnifiedHealthPage() {
       {/* ── CONDITIONS TAB ── */}
       {activeTab === 'conditions' && (
         <div className="space-y-3">
-          {MOCK_CONDITIONS.map((cond) => (
+          {conditions.map((cond) => (
             <div key={cond.id} className="bg-white rounded-xl border border-gray-200 p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -318,7 +442,7 @@ export default function UnifiedHealthPage() {
       {/* ── ALLERGIES TAB ── */}
       {activeTab === 'allergies' && (
         <div className="space-y-3">
-          {MOCK_ALLERGIES.map((a) => (
+          {allergies.map((a) => (
             <div key={a.id} className="bg-white rounded-xl border border-gray-200 p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -343,7 +467,7 @@ export default function UnifiedHealthPage() {
       {/* ── IMMUNIZATIONS TAB ── */}
       {activeTab === 'immunizations' && (
         <div className="space-y-3">
-          {MOCK_IMMUNIZATIONS.map((imm) => (
+          {immunizations.map((imm) => (
             <div key={imm.id} className="bg-white rounded-xl border border-gray-200 p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -370,10 +494,10 @@ export default function UnifiedHealthPage() {
       {activeTab === 'timeline' && (
         <div className="space-y-0">
           {[
-            ...MOCK_LABS.map(l => ({ ...l, type: 'lab', date: l.date, Icon: Activity, iconColor: '#0A6E6E', iconBg: 'rgba(14,234,202,0.12)' })),
-            ...MOCK_MEDICATIONS.map(m => ({ ...m, type: 'medication', date: m.startDate, Icon: Pill, iconColor: '#7C3AED', iconBg: '#F3E8FF' })),
-            ...MOCK_IMMUNIZATIONS.map(i => ({ ...i, type: 'immunization', date: i.date, Icon: Syringe, iconColor: '#3B82F6', iconBg: '#EFF6FF' })),
-            ...MOCK_CONDITIONS.map(c => ({ ...c, type: 'condition', date: c.onset, Icon: Heart, iconColor: '#DC2626', iconBg: '#FEF2F2' })),
+            ...labs.map(l => ({ ...l, type: 'lab', date: l.date, Icon: Activity, iconColor: '#0A6E6E', iconBg: 'rgba(14,234,202,0.12)' })),
+            ...medications.map(m => ({ ...m, type: 'medication', date: m.startDate, Icon: Pill, iconColor: '#7C3AED', iconBg: '#F3E8FF' })),
+            ...immunizations.map(i => ({ ...i, type: 'immunization', date: i.date, Icon: Syringe, iconColor: '#3B82F6', iconBg: '#EFF6FF' })),
+            ...conditions.map(c => ({ ...c, type: 'condition', date: c.onset, Icon: Heart, iconColor: '#DC2626', iconBg: '#FEF2F2' })),
           ]
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           .map((item, index, arr) => (
