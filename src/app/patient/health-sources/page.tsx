@@ -116,16 +116,37 @@ export default function HealthSourcesPage() {
   // 3. Patient logs in and approves access
   // 4. EHR redirects back to our callback with auth code
   // For now: simulates the connection for demo purposes
+  // Epic SMART on FHIR OAuth2 config
+  const EPIC_SANDBOX_CLIENT_ID = '81c8809f-77fc-48c1-b476-4582797489ac'
+  const EPIC_AUTHORIZE_URL = 'https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize'
+  const EPIC_FHIR_BASE = 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4'
+  const REDIRECT_URI = typeof window !== 'undefined'
+    ? window.location.origin + '/patient/health-sources/callback'
+    : 'https://main.d8claz6ybgdsn.amplifyapp.com/patient/health-sources/callback'
+
   const handleConnect = async (ehrId: string) => {
     const ehr = EHR_SYSTEMS.find(e => e.id === ehrId)
     if (!ehr || ehr.comingSoon) return
 
-    setIsConnecting(ehrId)
+    if (ehrId === 'epic') {
+      // Real SMART on FHIR OAuth2 redirect
+      const state = btoa(JSON.stringify({ provider: 'epic', timestamp: Date.now() }))
+      const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: EPIC_SANDBOX_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        scope: 'launch/patient patient/*.read openid fhirUser',
+        state: state,
+        aud: EPIC_FHIR_BASE,
+      })
+      window.location.href = EPIC_AUTHORIZE_URL + '?' + params.toString()
+      return
+    }
 
+    // Other portals still simulated for now
+    setIsConnecting(ehrId)
     try {
-      // Simulate OAuth flow for demo (replace with real OAuth redirect)
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
       const newConnection: Connection = {
         connectionId: 'conn_' + Date.now(),
         provider: ehrId,
@@ -134,9 +155,8 @@ export default function HealthSourcesPage() {
         lastSynced: new Date().toISOString(),
         patientFhirId: 'sandbox_' + ehrId + '_patient_1',
         recordCount: 0,
-        facilityName: ehrId === 'epic' ? 'Epic Sandbox Health System' : 'Cerner Sandbox Hospital',
+        facilityName: ehrId === 'cerner' ? 'Cerner Sandbox Hospital' : 'Health System',
       }
-      
       setConnections(prev => [...prev, newConnection])
       handleSync(newConnection.connectionId, ehrId)
     } catch {
