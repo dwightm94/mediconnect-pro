@@ -117,7 +117,7 @@ export default function HealthSourcesPage() {
   // 4. EHR redirects back to our callback with auth code
   // For now: simulates the connection for demo purposes
   // Epic SMART on FHIR OAuth2 config
-  const EPIC_SANDBOX_CLIENT_ID = 'f09904cf-3580-4e62-809e-2e748e3ea345'
+  const EPIC_SANDBOX_CLIENT_ID = '81c8809f-77fc-48c1-b476-4582797489ac'
   const EPIC_AUTHORIZE_URL = 'https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize'
   const EPIC_FHIR_BASE = 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4'
   const REDIRECT_URI = typeof window !== 'undefined'
