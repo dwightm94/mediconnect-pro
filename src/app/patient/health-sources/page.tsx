@@ -135,7 +135,7 @@ export default function HealthSourcesPage() {
         response_type: 'code',
         client_id: EPIC_SANDBOX_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
-        scope: 'launch/patient patient/*.read openid fhirUser',
+        scope: 'openid fhirUser patient/*.read',
         state: state,
         aud: EPIC_FHIR_BASE,
       })
