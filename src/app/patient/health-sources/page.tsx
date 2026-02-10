@@ -148,7 +148,7 @@ export default function HealthSourcesPage() {
       const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'athenahealth', orgName: 'athenahealth', timestamp: Date.now() }))
       const params = new URLSearchParams({
         response_type: 'code', client_id: '0oa10wx4in4VVMc9L298',
-        redirect_uri: redirectUri, scope: 'launch/patient patient/Patient.read patient/Observation.read patient/Condition.read patient/AllergyIntolerance.read patient/MedicationRequest.read patient/Immunization.read openid fhirUser',
+        redirect_uri: redirectUri, scope: 'openid profile patient/Patient.read patient/Observation.read patient/Condition.read patient/AllergyIntolerance.read patient/MedicationRequest.read patient/Immunization.read',
         state, aud: 'https://fhir.athena.io/demoAPIServer/fhir/r4',
       })
       window.location.href = `https://identity.athenahealth.com/oauth2/v1/authorize?${params.toString()}`
