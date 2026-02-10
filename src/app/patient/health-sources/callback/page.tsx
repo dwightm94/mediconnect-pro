@@ -1,127 +1,143 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 
-const API_BASE = 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
-
-export default function OAuthCallbackPage() {
-  const searchParams = useSearchParams()
+function CallbackContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { user } = useAuth()
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
-  const [message, setMessage] = useState('Connecting to your health portal...')
-  const [details, setDetails] = useState('')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
-    const code = searchParams.get('code')
-    const stateParam = searchParams.get('state')
-    const error = searchParams.get('error')
+    const handleCallback = async () => {
+      const code = searchParams.get('code')
+      const state = searchParams.get('state')
+      const error = searchParams.get('error')
 
-    if (error) {
-      setStatus('error')
-      setMessage('Authorization was denied')
-      setDetails(searchParams.get('error_description') || error)
-      return
-    }
+      if (error) {
+        setStatus('error')
+        setMessage(`Authorization denied: ${searchParams.get('error_description') || error}`)
+        return
+      }
 
-    if (!code || !stateParam) {
-      setStatus('error')
-      setMessage('Missing authorization code')
-      setDetails('The health portal did not return the expected data.')
-      return
-    }
+      if (!code || !state) {
+        setStatus('error')
+        setMessage('Missing authorization code or state parameter')
+        return
+      }
 
-    // Decode state to get provider info
-    let state: { provider: string; timestamp: number }
-    try {
-      state = JSON.parse(atob(stateParam))
-    } catch {
-      setStatus('error')
-      setMessage('Invalid callback state')
-      return
-    }
-
-    // Get patient ID from localStorage or session
-    const patientId = localStorage.getItem('patientId') || 'patient_default'
-
-    // Exchange the auth code for tokens via our Lambda
-    const exchangeCode = async () => {
       try {
-        setMessage(`Exchanging authorization with ${state.provider === 'epic' ? 'Epic MyChart' : state.provider}...`)
+        // Decode state to get provider info
+        const stateData = JSON.parse(atob(state))
 
+        // Retrieve PKCE code_verifier from sessionStorage
+        const codeVerifier = sessionStorage.getItem('pkce_code_verifier')
+        const tokenUrl = sessionStorage.getItem('fhir_token_url') || stateData.tokenUrl
+        const fhirBaseUrl = sessionStorage.getItem('fhir_base_url') || stateData.fhirBaseUrl
+
+        // Exchange code for tokens via our Lambda backend
+        // The Lambda handles the actual token exchange with the EHR's token endpoint
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://3kxwuprwp8.execute-api.us-east-1.amazonaws.com/prod'
         const response = await fetch(`${API_BASE}/fhir/callback`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             code,
-            provider: state.provider,
-            patientId,
+            state: stateData,
+            redirectUri: `${window.location.origin}/patient/health-sources/callback`,
+            patientId: user?.sub,
+            codeVerifier,       // PKCE code_verifier for token exchange
+            tokenUrl,           // The org-specific token endpoint
+            fhirBaseUrl,        // The org-specific FHIR base URL
           }),
         })
 
-        const data = await response.json()
-
-        if (data.success) {
-          setStatus('success')
-          setMessage('Successfully connected!')
-          setDetails(`Connected to ${data.provider === 'epic' ? 'Epic MyChart' : data.provider}. Patient FHIR ID: ${data.patientFhirId || 'obtained'}`)
-          
-          // Redirect back to health sources after 2 seconds
-          setTimeout(() => {
-            router.push('/patient/health-sources')
-          }, 2000)
-        } else {
-          setStatus('error')
-          setMessage('Connection failed')
-          setDetails(data.error || JSON.stringify(data.details || {}))
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}))
+          throw new Error(errData.message || 'Token exchange failed')
         }
-      } catch (err) {
+
+        const result = await response.json()
+
+        // Clean up sessionStorage
+        sessionStorage.removeItem('pkce_code_verifier')
+        sessionStorage.removeItem('fhir_token_url')
+        sessionStorage.removeItem('fhir_base_url')
+
+        setStatus('success')
+        setMessage(`Successfully connected to ${stateData.orgName || 'your health portal'}!`)
+
+        // Redirect back to health sources after 2 seconds
+        setTimeout(() => {
+          router.push('/patient/health-sources')
+        }, 2000)
+      } catch (err: any) {
         setStatus('error')
-        setMessage('Network error')
-        setDetails(err instanceof Error ? err.message : 'Failed to connect to server')
+        setMessage(err.message || 'Failed to complete the connection. Please try again.')
       }
     }
 
-    exchangeCode()
-  }, [searchParams, router])
+    if (user) {
+      handleCallback()
+    }
+  }, [user, searchParams, router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-      <div style={{ background: 'white', borderRadius: '12px', padding: '48px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.1)' }}>
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="text-center max-w-md">
         {status === 'processing' && (
-          <>
-            <div style={{ width: '48px', height: '48px', border: '4px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 24px' }} />
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1e293b', marginBottom: '8px' }}>{message}</h2>
-            <p style={{ color: '#64748b' }}>Please wait while we securely connect your account...</p>
-          </>
+          <div>
+            <Loader2 className="w-12 h-12 text-[#0A6E6E] animate-spin mx-auto" />
+            <h2 className="text-xl font-semibold text-gray-900 mt-4">Connecting to your health portal...</h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Exchanging authorization tokens securely...
+            </p>
+          </div>
         )}
+
         {status === 'success' && (
-          <>
-            <div style={{ width: '48px', height: '48px', background: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-              <span style={{ color: 'white', fontSize: '24px' }}>✓</span>
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-50 flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#10b981', marginBottom: '8px' }}>{message}</h2>
-            <p style={{ color: '#64748b', marginBottom: '16px' }}>{details}</p>
-            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Redirecting to your health sources...</p>
-          </>
+            <h2 className="text-xl font-semibold text-gray-900">Connected!</h2>
+            <p className="text-gray-600">{message}</p>
+            <p className="text-sm text-gray-400">Redirecting to your health sources...</p>
+          </div>
         )}
+
         {status === 'error' && (
-          <>
-            <div style={{ width: '48px', height: '48px', background: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-              <span style={{ color: 'white', fontSize: '24px' }}>✗</span>
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#ef4444', marginBottom: '8px' }}>{message}</h2>
-            <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px', wordBreak: 'break-word' }}>{details}</p>
+            <h2 className="text-xl font-semibold text-gray-900">Connection Failed</h2>
+            <p className="text-gray-600">{message}</p>
             <button
               onClick={() => router.push('/patient/health-sources')}
-              style={{ padding: '10px 24px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}
+              className="mt-4 px-6 py-2.5 bg-[#0A6E6E] text-white rounded-xl font-medium hover:bg-[#054848] transition-colors"
             >
               Back to Health Sources
             </button>
-          </>
+          </div>
         )}
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
+  )
+}
+
+export default function FHIRCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-[#0A6E6E] animate-spin" />
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   )
 }
