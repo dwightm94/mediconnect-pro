@@ -56,6 +56,20 @@ const EHR_SYSTEMS = [
     dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations'],
   },
   {
+    id: 'athenahealth',
+    name: 'athenahealth',
+    description: 'Used by 160,000+ providers across ambulatory, hospital, and health system settings',
+    logo: '💜',
+    color: '#7B2D8E',
+    bgColor: 'rgba(123,45,142,0.08)',
+    fhirBaseUrl: 'https://api.preview.platform.athenahealth.com/fhir/r4',
+    authorizeUrl: 'https://api.preview.platform.athenahealth.com/oauth2/v1/authorize',
+    tokenUrl: 'https://api.preview.platform.athenahealth.com/oauth2/v1/token',
+    scopes: 'patient/Patient.read patient/Observation.read patient/MedicationRequest.read patient/Condition.read patient/AllergyIntolerance.read patient/Immunization.read patient/Encounter.read openid fhirUser',
+    sandbox: true,
+    dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'],
+  },
+  {
     id: 'meditech',
     name: 'MEDITECH',
     description: 'Used by 2,300+ hospitals worldwide, primarily community hospitals',
@@ -140,6 +154,21 @@ export default function HealthSourcesPage() {
         aud: EPIC_FHIR_BASE,
       })
       window.location.href = EPIC_AUTHORIZE_URL + '?' + params.toString()
+      return
+    }
+
+    if (ehrId === 'athenahealth') {
+      // Real athenahealth SMART on FHIR OAuth2 redirect
+      const state = btoa(JSON.stringify({ provider: 'athenahealth', timestamp: Date.now() }))
+      const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: '0oa10wx4in4VVMc9L298',
+        redirect_uri: REDIRECT_URI,
+        scope: 'patient/Patient.read patient/Observation.read patient/MedicationRequest.read patient/Condition.read patient/AllergyIntolerance.read patient/Immunization.read patient/Encounter.read openid fhirUser',
+        state: state,
+        aud: 'https://api.preview.platform.athenahealth.com/fhir/r4',
+      })
+      window.location.href = 'https://api.preview.platform.athenahealth.com/oauth2/v1/authorize?' + params.toString()
       return
     }
 
