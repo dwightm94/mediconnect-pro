@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 
 // ─── Epic Production Config ──────────────────────────────────────────────────
-const EPIC_PROD_CLIENT_ID = 'f00904cf-3580-4e62-809e-2e748e3ea345'
+const EPIC_PROD_CLIENT_ID = '2acacaff-969e-4271-ac34-475e52b8c068' // SANDBOX
 const EPIC_SCOPES = 'patient/*.read launch/patient openid fhirUser'
 
 const OTHER_EHRS = [
