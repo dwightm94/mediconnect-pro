@@ -38,7 +38,6 @@ const EPIC_ORGS = [
 ]
 
 const OTHER_EHRS = [
-  { id: 'athenahealth', name: 'athenahealth', description: 'Used by 160,000+ providers across clinics and ambulatory practices', logo: '🟠', color: '#FF6B00', bgColor: 'rgba(255,107,0,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations'] },
   { id: 'cerner', name: 'Oracle Health (Cerner)', description: 'Used by VA Healthcare, Adventist Health, and 300+ organizations', logo: '🔴', color: '#C4262E', bgColor: 'rgba(196,38,46,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations'] },
   { id: 'meditech', name: 'MEDITECH', description: 'Used by 2,300+ hospitals worldwide', logo: '🟢', color: '#00843D', bgColor: 'rgba(0,132,61,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies'] },
   { id: 'nextgen', name: 'NextGen Healthcare', description: 'Used by 100,000+ providers', logo: '🔵', color: '#0066CC', bgColor: 'rgba(0,102,204,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions'] },
@@ -139,6 +138,29 @@ export default function HealthSourcesPage() {
       setDiscError(err.message || 'Failed to connect'); setDiscovering(false)
     }
   }, [user, API])
+
+  // ─── Other EHR OAuth Connect (athenahealth, Cerner) ─────────────────────────
+  const handleOtherEhrConnect = (ehrId: string) => {
+    const redirectUri = `${window.location.origin}/patient/health-sources/callback`
+    
+    if (ehrId === 'athenahealth') {
+      const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'athenahealth', orgName: 'athenahealth', timestamp: Date.now() }))
+      const params = new URLSearchParams({
+        response_type: 'code', client_id: '0oa10wx4in4VVMc9L298',
+        redirect_uri: redirectUri, scope: 'launch/patient patient/Patient.read patient/Observation.read patient/Condition.read patient/AllergyIntolerance.read patient/MedicationRequest.read patient/Immunization.read openid fhirUser',
+        state, aud: 'https://fhir.athena.io/demoAPIServer/fhir/r4',
+      })
+      window.location.href = `https://auth.athena.io/oauth2/v1/authorize?${params.toString()}`
+    } else if (ehrId === 'cerner') {
+      const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'cerner', orgName: 'Oracle Health (Cerner)', timestamp: Date.now() }))
+      const params = new URLSearchParams({
+        response_type: 'code', client_id: process.env.NEXT_PUBLIC_CERNER_CLIENT_ID || 'mediconnect-cerner-sandbox',
+        redirect_uri: redirectUri, scope: 'launch/patient patient/Patient.read patient/Observation.read openid fhirUser',
+        state, aud: 'https://fhir-open.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d',
+      })
+      window.location.href = `https://authorization.cerner.com/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/protocols/oauth2/profiles/smart-v1/personas/patient/authorize?${params.toString()}`
+    }
+  }
 
   const handleSync = async (connId: string, provider: string) => {
     setSyncing(provider)
@@ -323,17 +345,22 @@ export default function HealthSourcesPage() {
 
           {/* Other EHRs */}
           {OTHER_EHRS.map(ehr => (
-            <div key={ehr.id} className={`bg-white rounded-xl border border-gray-200 p-5 transition-all ${ehr.comingSoon ? 'opacity-60' : 'hover:shadow-md hover:border-gray-300 cursor-pointer'}`}>
+            <div key={ehr.id} className={`bg-white rounded-xl border border-gray-200 p-5 transition-all ${ehr.comingSoon ? 'opacity-60' : 'hover:shadow-md hover:border-gray-300'}`}>
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: ehr.bgColor }}>{ehr.logo}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-gray-900">{ehr.name}</h3>
                     {ehr.comingSoon && <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-medium rounded-full">Coming Soon</span>}
-                    {!ehr.comingSoon && ehr.sandbox && <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">Sandbox</span>}
+                    {!ehr.comingSoon && <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">Sandbox Ready</span>}
                   </div>
                   <p className="text-sm text-gray-500 mt-1">{ehr.description}</p>
                   <div className="flex flex-wrap gap-1.5 mt-3">{ehr.dataTypes.map(dt => <DataTag key={dt} dt={dt} />)}</div>
+                  {!ehr.comingSoon && (
+                    <button onClick={() => handleOtherEhrConnect(ehr.id)} className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:-translate-y-0.5" style={{ background: `linear-gradient(135deg, ${ehr.color}, ${ehr.color}dd)` }}>
+                      <ExternalLink className="w-4 h-4" />Connect {ehr.name}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
