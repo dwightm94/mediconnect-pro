@@ -151,7 +151,7 @@ export default function HealthSourcesPage() {
         redirect_uri: redirectUri, scope: 'launch/patient patient/Patient.read patient/Observation.read patient/Condition.read patient/AllergyIntolerance.read patient/MedicationRequest.read patient/Immunization.read openid fhirUser',
         state, aud: 'https://fhir.athena.io/demoAPIServer/fhir/r4',
       })
-      window.location.href = `https://auth.athena.io/oauth2/v1/authorize?${params.toString()}`
+      window.location.href = `https://identity.athenahealth.com/oauth2/v1/authorize?${params.toString()}`
     } else if (ehrId === 'cerner') {
       const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'cerner', orgName: 'Oracle Health (Cerner)', timestamp: Date.now() }))
       const params = new URLSearchParams({
