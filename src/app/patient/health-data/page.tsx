@@ -15,7 +15,7 @@ type HealthTab = 'overview' | 'labs' | 'medications' | 'conditions' | 'allergies
 // Each record has a "source" field showing which portal it came from
 // In production: fetched from our fhir_health_data DynamoDB table
 
-const labs = [
+const MOCK_LABS = [
   {
     id: 'lab_epic_001', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart',
     date: '2026-02-01', title: 'Complete Blood Count (CBC)', status: 'final', category: 'laboratory',
@@ -49,25 +49,25 @@ const labs = [
   },
 ]
 
-const medications = [
+const MOCK_MEDICATIONS = [
   { id: 'med_epic_001', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart', title: 'Lisinopril 10mg', dosage: '10mg tablet, once daily', status: 'active', prescriber: 'Dr. Sarah Chen', startDate: '2025-06-15', refillDate: '2026-02-28' },
   { id: 'med_epic_002', source: 'epic', sourceName: 'Mayo Clinic via Epic MyChart', title: 'Metformin 500mg', dosage: '500mg tablet, twice daily with meals', status: 'active', prescriber: 'Dr. Sarah Chen', startDate: '2025-08-20', refillDate: '2026-03-15' },
   { id: 'med_cerner_001', source: 'cerner', sourceName: 'VA Hospital via Oracle Health', title: 'Atorvastatin 20mg', dosage: '20mg tablet, once daily at bedtime', status: 'active', prescriber: 'Dr. Michael Ross', startDate: '2025-01-10', refillDate: '2026-02-10' },
 ]
 
-const conditions = [
+const MOCK_CONDITIONS = [
   { id: 'cond_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'Essential Hypertension', status: 'active', onset: '2024-03-15', category: 'Cardiovascular' },
   { id: 'cond_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Type 2 Diabetes Mellitus', status: 'active', onset: '2025-08-20', category: 'Endocrine' },
   { id: 'cond_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Hyperlipidemia', status: 'active', onset: '2025-01-10', category: 'Cardiovascular' },
 ]
 
-const allergies = [
+const MOCK_ALLERGIES = [
   { id: 'allergy_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'Penicillin', reaction: 'Rash, Hives', severity: 'moderate', type: 'medication' },
   { id: 'allergy_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Sulfa Drugs', reaction: 'Anaphylaxis', severity: 'severe', type: 'medication' },
   { id: 'allergy_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Shellfish', reaction: 'Swelling', severity: 'mild', type: 'food' },
 ]
 
-const immunizations = [
+const MOCK_IMMUNIZATIONS = [
   { id: 'imm_001', source: 'epic', sourceName: 'Mayo Clinic', title: 'COVID-19 Vaccine (Pfizer)', date: '2025-10-15', status: 'completed', dose: 'Booster #3' },
   { id: 'imm_002', source: 'epic', sourceName: 'Mayo Clinic', title: 'Influenza Vaccine 2025-26', date: '2025-09-20', status: 'completed', dose: 'Annual' },
   { id: 'imm_003', source: 'cerner', sourceName: 'VA Hospital', title: 'Tdap', date: '2024-06-10', status: 'completed', dose: 'Booster' },
