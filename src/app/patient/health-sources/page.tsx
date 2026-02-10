@@ -54,11 +54,11 @@ interface Connection {
 // ─── PKCE Helpers ────────────────────────────────────────────────────────────
 function generateCodeVerifier(): string {
   const arr = new Uint8Array(32); crypto.getRandomValues(arr)
-  return btoa(String.fromCharCode(...arr)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return btoa(String.fromCharCode.apply(null, Array.from(arr))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 async function generateCodeChallenge(v: string): Promise<string> {
   const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v))
-  return btoa(String.fromCharCode(...new Uint8Array(d))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(d)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 export default function HealthSourcesPage() {
