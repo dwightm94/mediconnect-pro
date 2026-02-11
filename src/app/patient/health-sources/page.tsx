@@ -10,9 +10,12 @@ import {
 // ─── Epic Production Config ──────────────────────────────────────────────────
 const EPIC_PROD_CLIENT_ID = '2acacaff-969e-4271-ac34-475e52b8c068' // SANDBOX
 const EPIC_SCOPES = 'launch/patient openid profile patient/*.read'
+const MEDITECH_CLIENT_ID = 'username-MediConnectProLLC@a01a4325a73b47ec8aec36f82645d95b'
+const MEDITECH_SCOPES = 'patient/*.read openid fhirUser'
 
 const OTHER_EHRS = [
   { id: 'athenahealth', name: 'athenahealth', description: 'Used by 160,000+ providers across ambulatory, hospital, and health system settings', logo: '🟠', color: '#FF6B00', bgColor: 'rgba(255,107,0,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'] },
+  { id: 'meditech', name: 'MEDITECH', description: 'Used by 2,300+ hospitals worldwide', logo: '🟢', color: '#00843D', bgColor: 'rgba(0,132,61,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'] },
   { id: 'cerner', name: 'Oracle Health (Cerner)', description: 'Used by VA Healthcare, Adventist Health, and 300+ organizations', logo: '🔴', color: '#C4262E', bgColor: 'rgba(196,38,46,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations'] },
   { id: 'meditech', name: 'MEDITECH', description: 'Used by 2,300+ hospitals worldwide', logo: '🟢', color: '#00843D', bgColor: 'rgba(0,132,61,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies'] },
   { id: 'nextgen', name: 'NextGen Healthcare', description: 'Used by 100,000+ providers', logo: '🔵', color: '#0066CC', bgColor: 'rgba(0,102,204,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions'] },
@@ -98,6 +101,14 @@ export default function HealthSourcesPage() {
         state, aud: 'https://api.preview.platform.athenahealth.com/fhir/r4',
       })
       window.location.href = `https://api.preview.platform.athenahealth.com/oauth2/v1/authorize?${params.toString()}`
+    } else if (ehrId === 'meditech') {
+      const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'meditech', orgName: 'MEDITECH', timestamp: Date.now() }))
+      const params = new URLSearchParams({
+        response_type: 'code', client_id: MEDITECH_CLIENT_ID,
+        redirect_uri: redirectUri, scope: MEDITECH_SCOPES,
+        state, aud: 'https://greenfield-prod-apis.meditech.com/v2/uscore/STU6/',
+      })
+      window.location.href = `https://greenfield-prod-apis.meditech.com/oauth/authorize?${params.toString()}`
     } else if (ehrId === 'cerner') {
       const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'cerner', orgName: 'Oracle Health (Cerner)', timestamp: Date.now() }))
       const params = new URLSearchParams({
