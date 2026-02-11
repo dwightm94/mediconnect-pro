@@ -9,7 +9,7 @@ import {
 
 // ─── Epic Production Config ──────────────────────────────────────────────────
 const EPIC_PROD_CLIENT_ID = '2acacaff-969e-4271-ac34-475e52b8c068' // SANDBOX
-const EPIC_SCOPES = 'patient/Patient.read patient/Observation.read patient/Condition.read patient/AllergyIntolerance.read patient/MedicationRequest.read patient/Immunization.read patient/Encounter.read openid fhirUser'
+const EPIC_SCOPES = 'launch/patient openid profile patient/*.read'
 
 const OTHER_EHRS = [
   { id: 'athenahealth', name: 'athenahealth', description: 'Used by 160,000+ providers across ambulatory, hospital, and health system settings', logo: '🟠', color: '#FF6B00', bgColor: 'rgba(255,107,0,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'] },
