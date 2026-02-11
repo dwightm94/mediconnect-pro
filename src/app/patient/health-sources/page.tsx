@@ -17,7 +17,6 @@ const OTHER_EHRS = [
   { id: 'athenahealth', name: 'athenahealth', description: 'Used by 160,000+ providers across ambulatory, hospital, and health system settings', logo: '🟠', color: '#FF6B00', bgColor: 'rgba(255,107,0,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'] },
   { id: 'meditech', name: 'MEDITECH', description: 'Used by 2,300+ hospitals worldwide', logo: '🟢', color: '#00843D', bgColor: 'rgba(0,132,61,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations', 'Encounters'] },
   { id: 'cerner', name: 'Oracle Health (Cerner)', description: 'Used by VA Healthcare, Adventist Health, and 300+ organizations', logo: '🔴', color: '#C4262E', bgColor: 'rgba(196,38,46,0.08)', sandbox: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies', 'Immunizations'] },
-  { id: 'meditech', name: 'MEDITECH', description: 'Used by 2,300+ hospitals worldwide', logo: '🟢', color: '#00843D', bgColor: 'rgba(0,132,61,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions', 'Allergies'] },
   { id: 'nextgen', name: 'NextGen Healthcare', description: 'Used by 100,000+ providers', logo: '🔵', color: '#0066CC', bgColor: 'rgba(0,102,204,0.08)', comingSoon: true, dataTypes: ['Labs', 'Medications', 'Conditions'] },
 ]
 
