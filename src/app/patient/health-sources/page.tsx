@@ -101,11 +101,16 @@ export default function HealthSourcesPage() {
       })
       window.location.href = `https://api.preview.platform.athenahealth.com/oauth2/v1/authorize?${params.toString()}`
     } else if (ehrId === 'meditech') {
+      const codeVerifier = generateCodeVerifier()
+      const codeChallenge = await generateCodeChallenge(codeVerifier)
+      sessionStorage.setItem('pkce_code_verifier', codeVerifier)
+      
       const state = btoa(JSON.stringify({ patientId: user?.sub, provider: 'meditech', orgName: 'MEDITECH', timestamp: Date.now() }))
       const params = new URLSearchParams({
         response_type: 'code', client_id: MEDITECH_CLIENT_ID,
         redirect_uri: redirectUri, scope: MEDITECH_SCOPES,
         state, aud: 'https://greenfield-prod-apis.meditech.com/v2/uscore/STU6/',
+        code_challenge: codeChallenge, code_challenge_method: 'S256'
       })
       window.location.href = `https://greenfield-prod-apis.meditech.com/oauth/authorize?${params.toString()}`
     } else if (ehrId === 'cerner') {
