@@ -89,7 +89,7 @@ export default function HealthSourcesPage() {
   }, [user])
 
   // ─── Other EHR OAuth Connect (athenahealth, Cerner) ─────────────────────────
-  const handleOtherEhrConnect = (ehrId: string) => {
+  const handleOtherEhrConnect = async (ehrId: string) => {
     const redirectUri = `${window.location.origin}/patient/health-sources/callback`
     
     if (ehrId === 'athenahealth') {
