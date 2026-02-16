@@ -79,6 +79,7 @@ export default function HealthSourcesPage() {
       client_id: EPIC_PROD_CLIENT_ID,
       redirect_uri: `${window.location.origin}/patient/health-sources/callback`,
       scope: EPIC_SCOPES,
+    console.log("Epic scopes being sent:", EPIC_SCOPES)
       state: state,
       aud: 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4',
       code_challenge: codeChallenge,
