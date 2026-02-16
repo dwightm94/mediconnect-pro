@@ -1,3 +1,4 @@
+// Version: 2.0.1 - Epic scopes fix
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
