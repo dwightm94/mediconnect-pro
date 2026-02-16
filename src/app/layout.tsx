@@ -1,3 +1,4 @@
+<!-- Cache bust: 1771281134 -->
 import type { Metadata } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'

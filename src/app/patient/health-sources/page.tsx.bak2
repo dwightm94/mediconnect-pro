@@ -71,13 +71,11 @@ export default function HealthSourcesPage() {
     }))
 
     // Epic's universal OAuth URL - Epic will show hospital picker
-    console.log("Epic scopes being sent:", EPIC_SCOPES)
-
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: EPIC_PROD_CLIENT_ID,
       redirect_uri: `${window.location.origin}/patient/health-sources/callback`,
-      scope: 'launch/patient openid profile patient/*.read',
+      scope: EPIC_SCOPES,
       state: state,
       aud: 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4',
       code_challenge: codeChallenge,
@@ -281,4 +279,3 @@ export default function HealthSourcesPage() {
   )
 }
 // Cache bust Wed Feb 11 02:27:11 AM UTC 2026
-// FORCE REBUILD Mon Feb 16 10:32:14 PM UTC 2026
