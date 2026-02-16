@@ -77,7 +77,7 @@ export default function HealthSourcesPage() {
       response_type: 'code',
       client_id: EPIC_PROD_CLIENT_ID,
       redirect_uri: `${window.location.origin}/patient/health-sources/callback`,
-      scope: EPIC_SCOPES,
+      scope: 'launch/patient openid profile patient/*.read',
       state: state,
       aud: 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4',
       code_challenge: codeChallenge,
