@@ -68,10 +68,11 @@ export default function HealthSourcesPage() {
       provider: 'epic',
       orgName: 'Epic MyChart',
       timestamp: Date.now(),
-    console.log("Epic scopes being sent:", EPIC_SCOPES)
     }))
 
     // Epic's universal OAuth URL - Epic will show hospital picker
+    console.log("Epic scopes being sent:", EPIC_SCOPES)
+
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: EPIC_PROD_CLIENT_ID,
